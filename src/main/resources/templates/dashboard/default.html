@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Hệ Thống Thi Trắc Nghiệm</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/static/css/style.css}">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: 100px auto;
+        }
+        .card {
+            margin-bottom: 20px;
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-exclamation-circle"></i> Thông báo
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Vai trò không xác định</h5>
+                <p class="card-text">Tài khoản của bạn không thuộc vai trò nào trong hệ thống. Vui lòng liên hệ quản trị viên để được hỗ trợ.</p>
+                <div class="mt-4">
+                    <p><strong>Thông tin tài khoản:</strong></p>
+                    <ul>
+                        <li>Tên đăng nhập: <span th:text="${user.userId}"></span></li>
+                        <li>Họ tên: <span th:text="${user.fullName}"></span></li>
+                        <li>Vai trò: <span th:text="${user.role}"></span></li>
+                    </ul>
+                </div>
+                <a th:href="@{/logout}" class="btn btn-primary">Đăng xuất</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html> 
