@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <style>
+        .sidebar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            border-radius: 0.5rem;
+            margin: 0.2rem 0;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: white !important;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Sidebar Fragment -->
+    <nav th:fragment="sidebar(activeMenu, user)" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+        <div class="position-sticky pt-3">
+            <div class="text-center pb-3">
+                <h5 class="text-white">Hệ Thống Thi Trắc Nghiệm</h5>
+                <p class="text-white-50" th:text="'Xin chào, ' + ${user?.fullName}">Xin chào, Quản trị viên</p>
+            </div>
+            
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activeMenu == 'dashboard'} ? 'active' : ''" th:href="@{/admin/dashboard}">
+                        <i class="fas fa-home"></i> Trang chủ
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activeMenu == 'giaovien'} ? 'active' : ''" th:href="@{/admin/giaovien}">
+                        <i class="fas fa-chalkboard-teacher"></i> Quản lý giáo viên
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activeMenu == 'sinhvien'} ? 'active' : ''" th:href="@{/admin/sinhvien}">
+                        <i class="fas fa-user-graduate"></i> Quản lý sinh viên
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activeMenu == 'monhoc'} ? 'active' : ''" th:href="@{/admin/monhoc}">
+                        <i class="fas fa-book"></i> Quản lý môn học
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activeMenu == 'lophoc'} ? 'active' : ''" th:href="@{/admin/lophoc}">
+                        <i class="fas fa-school"></i> Quản lý lớp học
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activeMenu == 'chuanbithi'} ? 'active' : ''" th:href="@{/admin/chuanbithi}">
+                        <i class="fas fa-book-open"></i> Chuẩn bị thi
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activeMenu == 'backup'} ? 'active' : ''" href="#">
+                        <i class="fas fa-database"></i> Sao lưu & Phục hồi
+                    </a>
+                </li>
+            </ul>
+            
+            <hr class="text-white-50">
+            <ul class="nav flex-column mb-2">
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</body>
+</html>

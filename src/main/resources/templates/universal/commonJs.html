@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<body>
+    <!-- Common JavaScript Functions Fragment -->
+    <script th:fragment="commonJs">
+        // Common utility functions for admin pages
+        
+        // Show alert message
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            // Insert after the main heading
+            const mainContent = document.querySelector('main');
+            const heading = mainContent.querySelector('.border-bottom');
+            heading.parentNode.insertBefore(alertDiv, heading.nextSibling);
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                const bsAlert = new bootstrap.Alert(alertDiv);
+                bsAlert.close();
+            }, 5000);
+        }
+
+        // Auto hide existing alerts after 5 seconds
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+
+        // Show empty state
+        function showEmptyState(count) {
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('dataTable').style.display = 'none';
+            if (document.getElementById('dataCount')) {
+                document.getElementById('dataCount').textContent = count || '0';
+            }
+        }
+
+        // Show data table
+        function showDataTable(count) {
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('dataTable').style.display = 'block';
+            if (document.getElementById('dataCount')) {
+                document.getElementById('dataCount').textContent = count || '0';
+            }
+        }
+
+        // Format date to Vietnamese locale
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleString('vi-VN');
+        }
+
+        // Create action buttons group
+        function createActionButtons(viewAction, editAction, deleteAction) {
+            return `
+                <div class="btn-group" role="group">
+                    ${viewAction ? `
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-info btn-action" 
+                            title="Xem chi tiết"
+                            onclick="${viewAction}">
+                        <i class="fas fa-eye"></i>
+                    </button>` : ''}
+                    ${editAction ? `
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-warning btn-action" 
+                            title="Chỉnh sửa"
+                            onclick="${editAction}">
+                        <i class="fas fa-edit"></i>
+                    </button>` : ''}
+                    ${deleteAction ? `
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-danger btn-action" 
+                            title="Xóa"
+                            onclick="${deleteAction}">
+                        <i class="fas fa-trash"></i>
+                    </button>` : ''}
+                </div>
+            `;
+        }
+
+        // Handle form submission with loading state
+        function handleFormSubmit(form, url, method = 'POST') {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            // Show loading
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+            submitBtn.disabled = true;
+            
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            
+            return fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>

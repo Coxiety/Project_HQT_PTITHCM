@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi"
+      th:with="
+        pageTitle='Chuẩn bị thi',
+        pageIcon='fa-book-open',
+        activeMenu='chuanbithi',
+        buttonText='Đăng ký thi mới',
+        buttonAction='showRegisterModal()'
+      ">
+<head th:replace="universal/head :: head(${pageTitle})">
+    <!-- Additional page-specific styles -->
+    <style>
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div th:replace="universal/admin/sidebar :: sidebar(${activeMenu}, ${user})"></div>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- Page Header -->
+                <div th:replace="universal/admin/header :: header(${pageTitle}, ${pageIcon}, ${buttonText}, ${buttonAction})"></div>
+                
+                <!-- Alert Messages -->
+                <div th:replace="universal/alerts :: alerts"></div>
+
+                <!-- Page Content -->
+                <div th:replace="admin/chuanbithi/content :: content"></div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Common Modals -->
+    <div th:replace="universal/admin/modals :: viewModal"></div>
+    <div th:replace="universal/admin/modals :: deleteModal"></div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <div th:replace="universal/commonJs :: commonJs"></div>
+    
+    <!-- Page specific script -->
+    <script>
+        let teacherList = [];
+        let classList = [];
+        let subjectList = [];
+        let currentDeleteInfo = null;
+
+        // Load data khi trang được tải
+        document.addEventListener('DOMContentLoaded', function() {
+            loadGiaoVien();
+            loadLop();
+            loadMonHoc();
+            loadRegistrations();
+        });
+
+        // Load danh sách đăng ký thi
+        function loadRegistrations() {
+            fetch('/admin/chuanbithi/api/dangky')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayRegistrations(data.registrations);
+                    } else {
+                        console.error('Không thể tải danh sách đăng ký thi: ' + data.message);
+                        showEmptyState(0);
+                    }
+                })
+                .catch(error => {
+                    console.error('Không thể tải danh sách đăng ký thi', error);
+                    showEmptyState(0);
+                });
+        }
+
+        // Hiển thị danh sách đăng ký thi trong bảng
+        function displayRegistrations(registrations) {
+            const tbody = document.getElementById('registrationTableBody');
+            tbody.innerHTML = '';
+            
+            if (registrations.length === 0) {
+                showEmptyState(0);
+                return;
+            }
+            
+            showDataTable(registrations.length);
+            
+            registrations.forEach(function(reg) {
+                const ngayThi = formatDate(reg.ngaythi);
+                const trinhDoText = getTrinhDoText(reg.trinhdo);
+                const trinhDoColor = getTrinhDoColor(reg.trinhdo);
+                const teacherName = getTeacherName(reg.magv);
+                const className = getClassName(reg.malop);
+                const subjectName = getSubjectName(reg.mamh);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="badge bg-info">${reg.magv}</span></td>
+                    <td><strong>${teacherName}</strong></td>
+                    <td>
+                        <span class="badge bg-secondary">${reg.malop}</span>
+                        <small class="text-muted d-block">${className}</small>
+                    </td>
+                    <td>
+                        <span class="badge bg-primary">${reg.mamh}</span>
+                        <small class="text-muted d-block">${subjectName}</small>
+                    </td>
+                    <td><span class="badge ${trinhDoColor}">${trinhDoText}</span></td>
+                    <td><small class="text-muted">${ngayThi}</small></td>
+                    <td><span class="badge bg-warning text-dark">Lần ${reg.lan}</span></td>
+                    <td><span class="text-primary fw-bold">${reg.socauthi}</span> câu</td>
+                    <td><span class="text-success fw-bold">${reg.thoigian}</span> phút</td>
+                    <td class="text-center">
+                        ${createActionButtons(
+                            `viewDetails('${reg.magv}', '${reg.malop}', '${reg.mamh}', ${reg.lan})`,
+                            null,
+                            `confirmDelete('${reg.magv}', '${reg.malop}', '${reg.mamh}', ${reg.lan})`
+                        )}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Helper functions
+        function getTeacherName(magv) {
+            const teacher = teacherList.find(t => t.magv === magv);
+            return teacher ? `${teacher.ho} ${teacher.ten}` : 'Đang tải...';
+        }
+
+        function getClassName(malop) {
+            const classItem = classList.find(c => c.malop === malop);
+            return classItem ? classItem.tenlop : '';
+        }
+
+        function getSubjectName(mamh) {
+            const subject = subjectList.find(s => s.mamh === mamh);
+            return subject ? subject.tenmh : '';
+        }
+
+        function getTrinhDoText(trinhdo) {
+            switch(trinhdo) {
+                case 'A': return 'A - Cao đẳng/Đại học';
+                case 'B': return 'B - Trung cấp'; 
+                case 'C': return 'C - Sơ cấp';
+                default: return trinhdo;
+            }
+        }
+
+        function getTrinhDoColor(trinhdo) {
+            switch(trinhdo) {
+                case 'A': return 'bg-success';
+                case 'B': return 'bg-warning text-dark';
+                case 'C': return 'bg-info';
+                default: return 'bg-secondary';
+            }
+        }
+
+        // Load data functions
+        function loadGiaoVien() {
+            fetch('/admin/chuanbithi/api/giaovien')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        teacherList = data.giaoviens;
+                        const select = document.getElementById('magv');
+                        select.innerHTML = '<option value="">-- Chọn giáo viên --</option>';
+                        data.giaoviens.forEach(function(gv) {
+                            select.innerHTML += `<option value="${gv.magv}">${gv.magv} - ${gv.ho} ${gv.ten}</option>`;
+                        });
+                        loadRegistrations();
+                    }
+                })
+                .catch(error => console.error('Không thể tải danh sách giáo viên', error));
+        }
+
+        function loadLop() {
+            fetch('/admin/chuanbithi/api/lop')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        classList = data.lops;
+                        const select = document.getElementById('malop');
+                        select.innerHTML = '<option value="">-- Chọn lớp học --</option>';
+                        data.lops.forEach(function(lop) {
+                            select.innerHTML += `<option value="${lop.malop}">${lop.malop} - ${lop.tenlop}</option>`;
+                        });
+                    }
+                })
+                .catch(error => console.error('Không thể tải danh sách lớp học', error));
+        }
+
+        function loadMonHoc() {
+            fetch('/admin/chuanbithi/api/monhoc')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        subjectList = data.monhocs;
+                        const select = document.getElementById('mamh');
+                        select.innerHTML = '<option value="">-- Chọn môn học --</option>';
+                        data.monhocs.forEach(function(mh) {
+                            select.innerHTML += `<option value="${mh.mamh}">${mh.mamh} - ${mh.tenmh}</option>`;
+                        });
+                    }
+                })
+                .catch(error => console.error('Không thể tải danh sách môn học', error));
+        }
+
+        // Modal functions
+        function showRegisterModal() {
+            document.getElementById('registerForm').reset();
+            const registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+            registerModal.show();
+        }
+
+        function viewDetails(magv, malop, mamh, lan) {
+            const teacher = teacherList.find(t => t.magv === magv);
+            const classItem = classList.find(c => c.malop === malop);
+            const subject = subjectList.find(s => s.mamh === mamh);
+            
+            const viewModal = new bootstrap.Modal(document.getElementById('viewModal'));
+            viewModal.show();
+            
+            document.getElementById('viewContent').innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header bg-info text-white">
+                                <h6 class="mb-0"><i class="fas fa-user"></i> Thông tin giáo viên</h6>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Mã giáo viên:</strong> <span class="badge bg-info">${magv}</span></p>
+                                <p><strong>Tên giáo viên:</strong> ${teacher ? `${teacher.ho} ${teacher.ten}` : 'N/A'}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0"><i class="fas fa-book"></i> Thông tin thi</h6>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Lớp:</strong> ${classItem ? `${malop} - ${classItem.tenlop}` : malop}</p>
+                                <p><strong>Môn học:</strong> ${subject ? `${mamh} - ${subject.tenmh}` : mamh}</p>
+                                <p><strong>Lần thi:</strong> <span class="badge bg-warning text-dark">Lần ${lan}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function confirmDelete(magv, malop, mamh, lan) {
+            currentDeleteInfo = { magv, malop, mamh, lan };
+            
+            const teacher = teacherList.find(t => t.magv === magv);
+            const classItem = classList.find(c => c.malop === malop);
+            const subject = subjectList.find(s => s.mamh === mamh);
+            
+            document.getElementById('deleteInfo').innerHTML = `
+                <ul class="list-unstyled">
+                    <li><strong>Giáo viên:</strong> ${teacher ? `${teacher.ho} ${teacher.ten}` : magv}</li>
+                    <li><strong>Lớp:</strong> ${classItem ? `${malop} - ${classItem.tenlop}` : malop}</li>
+                    <li><strong>Môn học:</strong> ${subject ? `${mamh} - ${subject.tenmh}` : mamh}</li>
+                    <li><strong>Lần thi:</strong> Lần ${lan}</li>
+                </ul>
+            `;
+            
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+
+        // Event listeners
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            handleFormSubmit(this, '/admin/chuanbithi/api/dangky')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
+                        showAlert('success', data.message || 'Đăng ký thi thành công!');
+                        loadRegistrations();
+                    } else {
+                        showAlert('danger', data.message || 'Lỗi khi đăng ký thi');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('danger', 'Có lỗi xảy ra khi đăng ký thi. Vui lòng thử lại.');
+                });
+        });
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            if (!currentDeleteInfo) return;
+            
+            const { magv, malop, mamh, lan } = currentDeleteInfo;
+            const btn = this;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xóa...';
+            btn.disabled = true;
+            
+            fetch(`/admin/chuanbithi/api/dangky/${magv}/${malop}/${mamh}/${lan}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+                    showAlert('success', data.message || 'Xóa đăng ký thi thành công!');
+                    loadRegistrations();
+                } else {
+                    showAlert('danger', data.message || 'Lỗi khi xóa đăng ký thi');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('danger', 'Có lỗi xảy ra khi xóa đăng ký thi. Vui lòng thử lại.');
+            })
+            .finally(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                currentDeleteInfo = null;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<body>
+    <!-- Admin Page Header Fragment -->
+    <div th:fragment="header(title, icon, buttonText, buttonAction)" 
+         class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">
+            <i th:class="${'fas ' + icon + ' text-primary'}"></i>
+            <span th:text="${title}">Page Title</span>
+        </h1>
+        <div class="btn-toolbar mb-2 mb-md-0" th:if="${buttonText}">
+            <button type="button" class="btn btn-success" th:onclick="${buttonAction}">
+                <i class="fas fa-plus"></i>
+                <span th:text="${buttonText}">Action</span>
+            </button>
+        </div>
+    </div>
+</body>
+</html>

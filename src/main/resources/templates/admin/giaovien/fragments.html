@@ -1,0 +1,257 @@
+<!-- Giao Vien Fragments for Universal Template -->
+<div xmlns:th="http://www.thymeleaf.org">
+
+<!-- Table Content Fragment (Headers + Rows) -->
+<div th:fragment="tableContent">
+    <thead>
+        <tr>
+            <th><i class="fas fa-id-card"></i> Mã GV</th>
+            <th><i class="fas fa-user"></i> Họ tên</th>
+            <th class="text-center"><i class="fas fa-tools"></i> Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="gv : ${danhSachGiaoVien}">
+            <td>
+                <span class="badge bg-info" th:text="${gv.MAGV}"></span>
+            </td>
+            <td>
+                <strong th:text="${gv.getFullName()}"></strong>
+            </td>
+            <td class="text-center">
+                <div class="btn-group" role="group">
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-info btn-action" 
+                            title="Xem chi tiết"
+                            th:data-magv="${gv.MAGV}"
+                            onclick="viewDetails(this.dataset.magv)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-warning btn-action" 
+                            title="Chỉnh sửa"
+                            th:data-magv="${gv.MAGV}"
+                            onclick="editGiaoVien(this.dataset.magv)">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-danger btn-action" 
+                            title="Xóa"
+                            th:data-magv="${gv.MAGV}"
+                            th:data-fullname="${gv.getFullName()}"
+                            onclick="confirmDelete(this.dataset.magv, this.dataset.fullname)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</div>
+
+<!-- Add Modal Fragment -->
+<div th:fragment="addModal" class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus-circle"></i> Thêm giáo viên mới
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="addForm" method="post" action="/admin/giaovien/add">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="addMaGV" class="form-label">Mã giáo viên</label>
+                        <input type="text" class="form-control" id="addMaGV" name="MAGV" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="addHo" class="form-label">Họ</label>
+                                <input type="text" class="form-control" id="addHo" name="HO" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="addTen" class="form-label">Tên</label>
+                                <input type="text" class="form-control" id="addTen" name="TEN" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Thêm giáo viên
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal Fragment -->
+<div th:fragment="editModal" class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit"></i> Chỉnh sửa giáo viên
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editForm" method="post" action="/admin/giaovien/update">
+                <div class="modal-body">
+                    <input type="hidden" id="editMaGV" name="MAGV">
+                    <div class="mb-3">
+                        <label class="form-label">Mã giáo viên</label>
+                        <input type="text" class="form-control" id="editMaGVDisplay" readonly>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editHo" class="form-label">Họ</label>
+                                <input type="text" class="form-control" id="editHo" name="HO" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editTen" class="form-label">Tên</label>
+                                <input type="text" class="form-control" id="editTen" name="TEN" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save"></i> Cập nhật
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- View Modal Fragment -->
+<div th:fragment="viewModal" class="modal fade" id="viewModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-eye"></i> Chi tiết giáo viên
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Mã giáo viên:</label>
+                    <p id="viewMaGV" class="form-control-plaintext"></p>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Họ:</label>
+                            <p id="viewHo" class="form-control-plaintext"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tên:</label>
+                            <p id="viewTen" class="form-control-plaintext"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Page Specific JavaScript -->
+<script th:fragment="pageJs">
+    // Giao vien specific JavaScript functions
+    
+    function showAddForm() {
+        $('#addModal').modal('show');
+    }
+    
+    function editGiaoVien(maGV) {
+        // Fetch teacher data and populate edit form
+        fetch(`/admin/giaovien/get/${maGV}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const gv = data.data;
+                    document.getElementById('editMaGV').value = gv.MAGV;
+                    document.getElementById('editMaGVDisplay').value = gv.MAGV;
+                    document.getElementById('editHo').value = gv.HO;
+                    document.getElementById('editTen').value = gv.TEN;
+                    
+                    $('#editModal').modal('show');
+                } else {
+                    showAlert('error', data.message || 'Không thể tải thông tin giáo viên');
+                }
+            })
+            .catch(error => {
+                showAlert('error', 'Lỗi khi tải thông tin giáo viên');
+                console.error('Error:', error);
+            });
+    }
+    
+    function viewDetails(maGV) {
+        // Fetch teacher data and show in view modal
+        fetch(`/admin/giaovien/get/${maGV}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const gv = data.data;
+                    document.getElementById('viewMaGV').textContent = gv.MAGV;
+                    document.getElementById('viewHo').textContent = gv.HO;
+                    document.getElementById('viewTen').textContent = gv.TEN;
+                    
+                    $('#viewModal').modal('show');
+                } else {
+                    showAlert('error', data.message || 'Không thể tải thông tin giáo viên');
+                }
+            })
+            .catch(error => {
+                showAlert('error', 'Lỗi khi tải thông tin giáo viên');
+                console.error('Error:', error);
+            });
+    }
+    
+    function confirmDelete(maGV, fullName) {
+        showConfirmDialog(
+            'Xác nhận xóa giáo viên',
+            `Bạn có chắc chắn muốn xóa giáo viên "${fullName}" (${maGV})?`,
+            'warning',
+            () => deleteGiaoVien(maGV)
+        );
+    }
+    
+    function deleteGiaoVien(maGV) {
+        fetch(`/admin/giaovien/delete/${maGV}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message || 'Xóa giáo viên thành công');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showAlert('error', data.message || 'Có lỗi xảy ra khi xóa giáo viên');
+            }
+        })
+        .catch(error => {
+            showAlert('error', 'Lỗi khi xóa giáo viên');
+            console.error('Error:', error);
+        });
+    }
+</script>
+
+</div>

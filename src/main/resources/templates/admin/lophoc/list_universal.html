@@ -1,0 +1,54 @@
+<!-- Lop Hoc List using Universal Template -->
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{universal/head :: head('Quản lý Lớp học - Hệ thống Thi trắc nghiệm')}"></head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav th:replace="~{universal/admin/sidebar :: sidebar('lophoc')}"></nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- Page Header -->
+                <div th:replace="~{universal/admin/header :: pageHeader(
+                    icon='fas fa-school', 
+                    title='Quản lý Lớp học', 
+                    buttonText='Thêm lớp học', 
+                    buttonAction='showAddForm()'
+                )}"></div>
+
+                <!-- Alert Messages -->
+                <div th:replace="~{universal/alerts :: alerts}"></div>
+
+                <!-- Data Card -->
+                <div th:replace="~{universal/admin/dataCard :: universalDataCard(
+                    icon='fas fa-list',
+                    title='Danh sách lớp học',
+                    entityListVar=${lopHocList},
+                    emptyIcon='fas fa-school',
+                    emptyMessage='Chưa có lớp học nào',
+                    emptySubMessage='Hãy thêm lớp học đầu tiên cho hệ thống',
+                    addButtonText='Thêm lớp học đầu tiên',
+                    tableHeaders=null,
+                    tableRowFragment='~{admin/lophoc/fragments :: tableContent}'
+                )}"></div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div th:replace="~{admin/lophoc/fragments :: addModal}"></div>
+    <div th:replace="~{admin/lophoc/fragments :: editModal}"></div>
+    <div th:replace="~{admin/lophoc/fragments :: viewModal}"></div>
+    <div th:replace="~{universal/admin/modals :: deleteModal}"></div>
+
+    <!-- Common JS -->
+    <div th:replace="~{universal/commonJs :: commonJs}"></div>
+    
+    <!-- Page specific JS -->
+    <div th:replace="~{admin/lophoc/fragments :: pageJs}"></div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<!--
+Universal Admin List Template Fragment
+Sử dụng fragment này để tạo các trang list admin với cấu trúc thống nhất
+-->
+
+<!-- Universal List Fragment -->
+<div th:fragment="universalList(
+    pageTitle,
+    pageIcon,
+    entityName,
+    entityNameCapital,
+    entityListVar,
+    addButtonText,
+    emptyIcon,
+    emptyMessage,
+    activeMenu,
+    tableHeadersFragment,
+    tableRowsFragment,
+    addModalFragment,
+    editModalFragment,
+    viewModalFragment,
+    pageJsFragment
+)">
+
+<head th:replace="~{universal/head :: head(${pageTitle})}"></head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav th:replace="~{universal/admin/sidebar :: sidebar(${activeMenu})}"></nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- Page Header -->
+                <div th:replace="~{universal/admin/header :: pageHeader(
+                    icon=${pageIcon}, 
+                    title=${entityNameCapital}, 
+                    buttonText=${addButtonText}, 
+                    buttonAction='showAddForm()'
+                )}"></div>
+
+                <!-- Alert Messages -->
+                <div th:replace="~{universal/alerts :: alerts}"></div>
+
+                <!-- Data Card -->
+                <div th:replace="~{universal/admin/dataCard :: universalDataCard(
+                    icon='fas fa-list',
+                    title=${'Danh sách ' + entityName},
+                    entityListVar=${entityListVar},
+                    emptyIcon=${emptyIcon},
+                    emptyMessage=${emptyMessage},
+                    emptySubMessage=${'Hãy thêm ' + entityName + ' đầu tiên cho hệ thống'},
+                    addButtonText=${'Thêm ' + entityName + ' đầu tiên'},
+                    tableHeaders=null,
+                    tableRowFragment=${tableRowsFragment}
+                )}"></div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div th:replace="${addModalFragment}"></div>
+    <div th:replace="${editModalFragment ?: '~{}'}"></div>
+    <div th:replace="${viewModalFragment ?: '~{}'}"></div>
+    <div th:replace="~{universal/admin/modals :: deleteModal}"></div>
+
+    <!-- Common JS -->
+    <div th:replace="~{universal/commonJs :: commonJs}"></div>
+    
+    <!-- Page specific JS -->
+    <div th:replace="${pageJsFragment ?: '~{}'}"></div>
+</body>
+
+</div>
+</html>

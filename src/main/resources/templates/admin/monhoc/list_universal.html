@@ -1,0 +1,53 @@
+<!-- Mon Hoc List using Universal Template -->
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{universal/head :: head('Quản lý Môn học - Hệ thống Thi trắc nghiệm')}"></head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav th:replace="~{universal/admin/sidebar :: sidebar('monhoc')}"></nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- Page Header -->
+                <div th:replace="~{universal/admin/header :: pageHeader(
+                    icon='fas fa-book', 
+                    title='Quản lý Môn học', 
+                    buttonText='Thêm môn học', 
+                    buttonAction='showAddForm()'
+                )}"></div>
+
+                <!-- Alert Messages -->
+                <div th:replace="~{universal/alerts :: alerts}"></div>
+
+                <!-- Data Card -->
+                <div th:replace="~{universal/admin/dataCard :: universalDataCard(
+                    icon='fas fa-list',
+                    title='Danh sách môn học',
+                    entityListVar=${monHocList},
+                    emptyIcon='fas fa-book',
+                    emptyMessage='Chưa có môn học nào',
+                    emptySubMessage='Hãy thêm môn học đầu tiên cho hệ thống',
+                    addButtonText='Thêm môn học đầu tiên',
+                    tableHeaders=null,
+                    tableRowFragment='~{admin/monhoc/fragments :: tableContent}'
+                )}"></div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div th:replace="~{admin/monhoc/fragments :: addModal}"></div>
+    <div th:replace="~{admin/monhoc/fragments :: editModal}"></div>
+    <div th:replace="~{universal/admin/modals :: deleteModal}"></div>
+
+    <!-- Common JS -->
+    <div th:replace="~{universal/commonJs :: commonJs}"></div>
+    
+    <!-- Page specific JS -->
+    <div th:replace="~{admin/monhoc/fragments :: pageJs}"></div>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!-- Mon Hoc Fragments for Universal Template -->
+<div xmlns:th="http://www.thymeleaf.org">
+
+<!-- Table Content Fragment (Headers + Rows) -->
+<div th:fragment="tableContent">
+    <thead>
+        <tr>
+            <th><i class="fas fa-hashtag"></i> Mã môn học</th>
+            <th><i class="fas fa-book"></i> Tên môn học</th>
+            <th class="text-center"><i class="fas fa-tools"></i> Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="mh : ${monHocList}">
+            <td>
+                <span class="badge bg-primary" th:text="${mh.MAMH}"></span>
+            </td>
+            <td>
+                <strong th:text="${mh.TENMH}"></strong>
+            </td>
+            <td class="text-center">
+                <div class="btn-group" role="group">
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-warning btn-action" 
+                            title="Chỉnh sửa"
+                            th:data-mamh="${mh.MAMH}"
+                            th:data-tenmh="${mh.TENMH}"
+                            onclick="editMonHoc(this.dataset.mamh, this.dataset.tenmh)">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-danger btn-action" 
+                            title="Xóa"
+                            th:data-mamh="${mh.MAMH}"
+                            th:data-tenmh="${mh.TENMH}"
+                            onclick="confirmDelete(this.dataset.mamh, this.dataset.tenmh)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</div>
+
+<!-- Add Modal Fragment -->
+<div th:fragment="addModal" class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus-circle"></i> Thêm môn học mới
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="addForm" method="post" action="/admin/monhoc/add">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="addMaMH" class="form-label">Mã môn học</label>
+                        <input type="text" class="form-control" id="addMaMH" name="MAMH" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="addTenMH" class="form-label">Tên môn học</label>
+                        <input type="text" class="form-control" id="addTenMH" name="TENMH" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Thêm môn học
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal Fragment -->
+<div th:fragment="editModal" class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit"></i> Chỉnh sửa môn học
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editForm" method="post" action="/admin/monhoc/update">
+                <div class="modal-body">
+                    <input type="hidden" id="editMaMH" name="MAMH">
+                    <div class="mb-3">
+                        <label class="form-label">Mã môn học</label>
+                        <input type="text" class="form-control" id="editMaMHDisplay" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editTenMH" class="form-label">Tên môn học</label>
+                        <input type="text" class="form-control" id="editTenMH" name="TENMH" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save"></i> Cập nhật
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Page Specific JavaScript -->
+<script th:fragment="pageJs">
+    // Mon hoc specific JavaScript functions
+    
+    function showAddForm() {
+        $('#addModal').modal('show');
+    }
+    
+    function editMonHoc(maMH, tenMH) {
+        document.getElementById('editMaMH').value = maMH;
+        document.getElementById('editMaMHDisplay').value = maMH;
+        document.getElementById('editTenMH').value = tenMH;
+        
+        $('#editModal').modal('show');
+    }
+    
+    function confirmDelete(maMH, tenMH) {
+        showConfirmDialog(
+            'Xác nhận xóa môn học',
+            `Bạn có chắc chắn muốn xóa môn học "${tenMH}" (${maMH})?`,
+            'warning',
+            () => deleteMonHoc(maMH)
+        );
+    }
+    
+    function deleteMonHoc(maMH) {
+        fetch(`/admin/monhoc/delete/${maMH}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message || 'Xóa môn học thành công');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showAlert('error', data.message || 'Có lỗi xảy ra khi xóa môn học');
+            }
+        })
+        .catch(error => {
+            showAlert('error', 'Lỗi khi xóa môn học');
+            console.error('Error:', error);
+        });
+    }
+</script>
+
+</div>

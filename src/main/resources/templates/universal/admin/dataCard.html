@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<body>
+    <!-- Admin Data Card Fragment -->
+    <div th:fragment="dataCard(title, icon, count, emptyMessage, emptyIcon, tableHeaders)" class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i th:class="${'fas ' + icon}"></i>
+                <span th:text="${title}">Title</span>
+                <span th:if="${count != null}" th:id="'dataCount'" class="badge bg-primary ms-2" th:text="${count}">0</span>
+            </h5>
+        </div>
+        <div class="card-body">
+            <!-- Empty State -->
+            <div th:id="'emptyState'" class="text-center py-5" style="display: none;">
+                <i th:class="${'fas ' + emptyIcon + ' text-muted fa-3x mb-3'}"></i>
+                <h5 class="text-muted" th:text="${emptyMessage}">No data found</h5>
+                <p class="text-muted">Add the first item to get started</p>
+                <button type="button" class="btn btn-primary" onclick="showAddModal()">
+                    <i class="fas fa-plus"></i> Add First Item
+                </button>
+            </div>
+
+            <!-- Data Table -->
+            <div th:id="'dataTable'">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr th:each="header : ${tableHeaders}">
+                                <th th:each="col : ${header}" th:utext="${col}">Header</th>
+                            </tr>
+                        </thead>
+                        <tbody th:id="'dataTableBody'">
+                            <!-- Data will be loaded via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Headers Fragment -->
+    <th:block th:fragment="tableHeaders(headers)">
+        <thead>
+            <tr>
+                <th th:each="header : ${headers}">
+                    <i th:class="${header.icon}" th:if="${header.icon}"></i> 
+                    <span th:text="${header.text}"></span>
+                </th>
+            </tr>
+        </thead>
+    </th:block>
+
+    <!-- Generic Table Structure -->
+    <div th:fragment="universalTable(entityListVar, headers, rowFragment, entityName)" class="table-responsive">
+        <table class="table table-hover">
+            <thead th:replace="~{universal/admin/dataCard :: tableHeaders(${headers})}"></thead>
+            <tbody>
+                <tr th:each="item, iterStat : ${entityListVar}" 
+                    th:replace="${rowFragment}">
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Enhanced Data Card with Universal Table Support -->
+    <div th:fragment="universalDataCard(
+        icon, 
+        title, 
+        entityListVar, 
+        emptyIcon, 
+        emptyMessage, 
+        emptySubMessage, 
+        addButtonText,
+        tableHeaders,
+        tableRowFragment
+    )" class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i th:class="${icon}"></i>
+                <span th:text="${title}"></span>
+                <span th:if="${entityListVar}" 
+                      class="badge bg-primary ms-2" 
+                      th:text="${#lists.size(entityListVar)}"></span>
+            </h5>
+        </div>
+        <div class="card-body">
+            <!-- Empty state -->
+            <div th:if="${entityListVar == null || #lists.isEmpty(entityListVar)}" 
+                 class="text-center py-5">
+                <i th:class="${emptyIcon + ' text-muted fa-3x mb-3'}"></i>
+                <h5 class="text-muted" th:text="${emptyMessage}"></h5>
+                <p class="text-muted" th:text="${emptySubMessage}"></p>
+                <button type="button" class="btn btn-primary" onclick="showAddForm()">
+                    <i class="fas fa-plus"></i> <span th:text="${addButtonText}"></span>
+                </button>
+            </div>            <!-- Table with data -->
+            <div th:if="${entityListVar != null && !#lists.isEmpty(entityListVar)}">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <!-- Complete table content replaced by fragment -->
+                        <div th:replace="${tableRowFragment}"></div>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

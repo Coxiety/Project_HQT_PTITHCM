@@ -1,0 +1,261 @@
+<!-- Lop Hoc Fragments for Universal Template -->
+<div xmlns:th="http://www.thymeleaf.org">
+
+<!-- Table Content Fragment (Headers + Rows) -->
+<div th:fragment="tableContent">
+    <thead>
+        <tr>
+            <th><i class="fas fa-hashtag"></i> Mã lớp</th>
+            <th><i class="fas fa-school"></i> Tên lớp</th>
+            <th><i class="fas fa-users"></i> Sĩ số</th>
+            <th class="text-center"><i class="fas fa-tools"></i> Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="lop : ${lopHocList}">
+            <td>
+                <span class="badge bg-primary" th:text="${lop.MALOP}"></span>
+            </td>
+            <td>
+                <strong th:text="${lop.TENLOP}"></strong>
+            </td>
+            <td>
+                <span class="badge bg-info" th:text="${lop.siso ?: 0}"></span>
+            </td>
+            <td class="text-center">
+                <div class="btn-group" role="group">
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-info btn-action" 
+                            title="Xem danh sách sinh viên"
+                            th:data-malop="${lop.MALOP}"
+                            onclick="viewStudents(this.dataset.malop)">
+                        <i class="fas fa-users"></i>
+                    </button>
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-success btn-action" 
+                            title="Xem chi tiết"
+                            th:data-malop="${lop.MALOP}"
+                            onclick="viewDetails(this.dataset.malop)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-warning btn-action" 
+                            title="Chỉnh sửa"
+                            th:data-malop="${lop.MALOP}"
+                            th:data-tenlop="${lop.TENLOP}"
+                            onclick="editLopHoc(this.dataset.malop, this.dataset.tenlop)">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-danger btn-action" 
+                            title="Xóa"
+                            th:data-malop="${lop.MALOP}"
+                            th:data-tenlop="${lop.TENLOP}"
+                            onclick="confirmDelete(this.dataset.malop, this.dataset.tenlop)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</div>
+
+<!-- Add Modal Fragment -->
+<div th:fragment="addModal" class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus-circle"></i> Thêm lớp học mới
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="addForm" method="post" action="/admin/lophoc/add">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="addMaLop" class="form-label">Mã lớp</label>
+                        <input type="text" class="form-control" id="addMaLop" name="MALOP" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="addTenLop" class="form-label">Tên lớp</label>
+                        <input type="text" class="form-control" id="addTenLop" name="TENLOP" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Thêm lớp học
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal Fragment -->
+<div th:fragment="editModal" class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit"></i> Chỉnh sửa lớp học
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editForm" method="post" action="/admin/lophoc/update">
+                <div class="modal-body">
+                    <input type="hidden" id="editMaLop" name="MALOP">
+                    <div class="mb-3">
+                        <label class="form-label">Mã lớp</label>
+                        <input type="text" class="form-control" id="editMaLopDisplay" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editTenLop" class="form-label">Tên lớp</label>
+                        <input type="text" class="form-control" id="editTenLop" name="TENLOP" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save"></i> Cập nhật
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- View Modal Fragment -->
+<div th:fragment="viewModal" class="modal fade" id="viewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-eye"></i> Chi tiết lớp học
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mã lớp:</label>
+                            <p id="viewMaLop" class="form-control-plaintext"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tên lớp:</label>
+                            <p id="viewTenLop" class="form-control-plaintext"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Sĩ số:</label>
+                    <p id="viewSiSo" class="form-control-plaintext"></p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Danh sách sinh viên:</label>
+                    <div id="viewStudentList" class="border rounded p-3">
+                        <!-- Student list will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Page Specific JavaScript -->
+<script th:fragment="pageJs">
+    // Lop hoc specific JavaScript functions
+    
+    function showAddForm() {
+        $('#addModal').modal('show');
+    }
+    
+    function editLopHoc(maLop, tenLop) {
+        document.getElementById('editMaLop').value = maLop;
+        document.getElementById('editMaLopDisplay').value = maLop;
+        document.getElementById('editTenLop').value = tenLop;
+        
+        $('#editModal').modal('show');
+    }
+    
+    function viewDetails(maLop) {
+        // Fetch class details and show in view modal
+        fetch(`/admin/lophoc/get/${maLop}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const lop = data.data;
+                    document.getElementById('viewMaLop').textContent = lop.MALOP;
+                    document.getElementById('viewTenLop').textContent = lop.TENLOP;
+                    document.getElementById('viewSiSo').textContent = lop.siso || 0;
+                    
+                    // Load student list
+                    const studentListDiv = document.getElementById('viewStudentList');
+                    if (lop.students && lop.students.length > 0) {
+                        let studentHtml = '<ul class="list-group">';
+                        lop.students.forEach(student => {
+                            studentHtml += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><strong>${student.HO} ${student.TEN}</strong> (${student.MASV})</span>
+                                <span class="badge bg-primary rounded-pill">${student.EMAIL}</span>
+                            </li>`;
+                        });
+                        studentHtml += '</ul>';
+                        studentListDiv.innerHTML = studentHtml;
+                    } else {
+                        studentListDiv.innerHTML = '<p class="text-muted">Chưa có sinh viên nào trong lớp này</p>';
+                    }
+                    
+                    $('#viewModal').modal('show');
+                } else {
+                    showAlert('error', data.message || 'Không thể tải thông tin lớp học');
+                }
+            })
+            .catch(error => {
+                showAlert('error', 'Lỗi khi tải thông tin lớp học');
+                console.error('Error:', error);
+            });
+    }
+    
+    function viewStudents(maLop) {
+        // Navigate to student list for this class
+        window.location.href = `/admin/lophoc/${maLop}/sinhvien`;
+    }
+    
+    function confirmDelete(maLop, tenLop) {
+        showConfirmDialog(
+            'Xác nhận xóa lớp học',
+            `Bạn có chắc chắn muốn xóa lớp học "${tenLop}" (${maLop})?`,
+            'warning',
+            () => deleteLopHoc(maLop)
+        );
+    }
+    
+    function deleteLopHoc(maLop) {
+        fetch(`/admin/lophoc/delete/${maLop}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message || 'Xóa lớp học thành công');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showAlert('error', data.message || 'Có lỗi xảy ra khi xóa lớp học');
+            }
+        })
+        .catch(error => {
+            showAlert('error', 'Lỗi khi xóa lớp học');
+            console.error('Error:', error);
+        });
+    }
+</script>
+
+</div>

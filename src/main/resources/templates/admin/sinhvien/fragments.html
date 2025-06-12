@@ -1,0 +1,411 @@
+<!-- Sinh Vien Fragments for Universal Template -->
+<div xmlns:th="http://www.thymeleaf.org">
+
+<!-- Table Content Fragment (Headers + Rows) -->
+<div th:fragment="tableContent">
+    <thead>
+        <tr>
+            <th><i class="fas fa-id-card"></i> Mã SV</th>
+            <th><i class="fas fa-user"></i> Họ tên</th>
+            <th><i class="fas fa-school"></i> Lớp</th>
+            <th><i class="fas fa-envelope"></i> Email</th>
+            <th><i class="fas fa-phone"></i> Điện thoại</th>
+            <th class="text-center"><i class="fas fa-tools"></i> Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="sv : ${danhSachSinhVien}">
+            <td>
+                <span class="badge bg-info" th:text="${sv.MASV}"></span>
+            </td>
+            <td>
+                <strong th:text="${sv.getFullName()}"></strong>
+            </td>
+            <td>
+                <span class="badge bg-secondary" th:text="${sv.MALOP}"></span>
+            </td>
+            <td>
+                <span th:text="${sv.EMAIL}"></span>
+            </td>
+            <td>
+                <span th:text="${sv.DIENTHOAI}"></span>
+            </td>
+            <td class="text-center">
+                <div class="btn-group" role="group">
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-info btn-action" 
+                            title="Xem chi tiết"
+                            th:data-masv="${sv.MASV}"
+                            onclick="viewDetails(this.dataset.masv)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-warning btn-action" 
+                            title="Chỉnh sửa"
+                            th:data-masv="${sv.MASV}"
+                            onclick="editSinhVien(this.dataset.masv)">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-danger btn-action" 
+                            title="Xóa"
+                            th:data-masv="${sv.MASV}"
+                            th:data-fullname="${sv.getFullName()}"
+                            onclick="confirmDelete(this.dataset.masv, this.dataset.fullname)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</div>
+
+<!-- Add Modal Fragment -->
+<div th:fragment="addModal" class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus-circle"></i> Thêm sinh viên mới
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="addForm" method="post" action="/admin/sinhvien/add">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="addMaSV" class="form-label">Mã sinh viên</label>
+                                <input type="text" class="form-control" id="addMaSV" name="MASV" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="addMaLop" class="form-label">Mã lớp</label>
+                                <select class="form-select" id="addMaLop" name="MALOP" required>
+                                    <option value="">Chọn lớp...</option>
+                                    <option th:each="lop : ${danhSachLop}" 
+                                            th:value="${lop.MALOP}" 
+                                            th:text="${lop.MALOP + ' - ' + lop.TENLOP}"></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="addHo" class="form-label">Họ</label>
+                                <input type="text" class="form-control" id="addHo" name="HO" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="addTen" class="form-label">Tên</label>
+                                <input type="text" class="form-control" id="addTen" name="TEN" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="addEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="addEmail" name="EMAIL" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="addDienThoai" class="form-label">Điện thoại</label>
+                                <input type="text" class="form-control" id="addDienThoai" name="DIENTHOAI">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="addNgaySinh" class="form-label">Ngày sinh</label>
+                                <input type="date" class="form-control" id="addNgaySinh" name="NGAYSINH">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="addPhai" class="form-label">Phái</label>
+                                <select class="form-select" id="addPhai" name="PHAI">
+                                    <option value="">Chọn giới tính...</option>
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Thêm sinh viên
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal Fragment -->
+<div th:fragment="editModal" class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit"></i> Chỉnh sửa sinh viên
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editForm" method="post" action="/admin/sinhvien/update">
+                <div class="modal-body">
+                    <input type="hidden" id="editMaSV" name="MASV">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editMaLop" class="form-label">Mã lớp</label>
+                                <select class="form-select" id="editMaLop" name="MALOP" required>
+                                    <option value="">Chọn lớp...</option>
+                                    <option th:each="lop : ${danhSachLop}" 
+                                            th:value="${lop.MALOP}" 
+                                            th:text="${lop.MALOP + ' - ' + lop.TENLOP}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Mã sinh viên</label>
+                                <input type="text" class="form-control" id="editMaSVDisplay" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editHo" class="form-label">Họ</label>
+                                <input type="text" class="form-control" id="editHo" name="HO" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editTen" class="form-label">Tên</label>
+                                <input type="text" class="form-control" id="editTen" name="TEN" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="editEmail" name="EMAIL" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editDienThoai" class="form-label">Điện thoại</label>
+                                <input type="text" class="form-control" id="editDienThoai" name="DIENTHOAI">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editNgaySinh" class="form-label">Ngày sinh</label>
+                                <input type="date" class="form-control" id="editNgaySinh" name="NGAYSINH">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editPhai" class="form-label">Phái</label>
+                                <select class="form-select" id="editPhai" name="PHAI">
+                                    <option value="">Chọn giới tính...</option>
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save"></i> Cập nhật
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- View Modal Fragment -->
+<div th:fragment="viewModal" class="modal fade" id="viewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-eye"></i> Chi tiết sinh viên
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mã sinh viên:</label>
+                            <p id="viewMaSV" class="form-control-plaintext"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mã lớp:</label>
+                            <p id="viewMaLop" class="form-control-plaintext"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Họ:</label>
+                            <p id="viewHo" class="form-control-plaintext"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tên:</label>
+                            <p id="viewTen" class="form-control-plaintext"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email:</label>
+                            <p id="viewEmail" class="form-control-plaintext"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Điện thoại:</label>
+                            <p id="viewDienThoai" class="form-control-plaintext"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Ngày sinh:</label>
+                            <p id="viewNgaySinh" class="form-control-plaintext"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Phái:</label>
+                            <p id="viewPhai" class="form-control-plaintext"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Page Specific JavaScript -->
+<script th:fragment="pageJs">
+    // Sinh vien specific JavaScript functions
+    
+    function showAddForm() {
+        $('#addModal').modal('show');
+    }
+    
+    function editSinhVien(maSV) {
+        // Fetch student data and populate edit form
+        fetch(`/admin/sinhvien/get/${maSV}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const sv = data.data;
+                    document.getElementById('editMaSV').value = sv.MASV;
+                    document.getElementById('editMaSVDisplay').value = sv.MASV;
+                    document.getElementById('editMaLop').value = sv.MALOP;
+                    document.getElementById('editHo').value = sv.HO;
+                    document.getElementById('editTen').value = sv.TEN;
+                    document.getElementById('editEmail').value = sv.EMAIL;
+                    document.getElementById('editDienThoai').value = sv.DIENTHOAI || '';
+                    document.getElementById('editNgaySinh').value = sv.NGAYSINH || '';
+                    document.getElementById('editPhai').value = sv.PHAI || '';
+                    
+                    $('#editModal').modal('show');
+                } else {
+                    showAlert('error', data.message || 'Không thể tải thông tin sinh viên');
+                }
+            })
+            .catch(error => {
+                showAlert('error', 'Lỗi khi tải thông tin sinh viên');
+                console.error('Error:', error);
+            });
+    }
+    
+    function viewDetails(maSV) {
+        // Fetch student data and show in view modal
+        fetch(`/admin/sinhvien/get/${maSV}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const sv = data.data;
+                    document.getElementById('viewMaSV').textContent = sv.MASV;
+                    document.getElementById('viewMaLop').textContent = sv.MALOP;
+                    document.getElementById('viewHo').textContent = sv.HO;
+                    document.getElementById('viewTen').textContent = sv.TEN;
+                    document.getElementById('viewEmail').textContent = sv.EMAIL;
+                    document.getElementById('viewDienThoai').textContent = sv.DIENTHOAI || 'Chưa cập nhật';
+                    document.getElementById('viewNgaySinh').textContent = sv.NGAYSINH || 'Chưa cập nhật';
+                    document.getElementById('viewPhai').textContent = sv.PHAI || 'Chưa cập nhật';
+                    
+                    $('#viewModal').modal('show');
+                } else {
+                    showAlert('error', data.message || 'Không thể tải thông tin sinh viên');
+                }
+            })
+            .catch(error => {
+                showAlert('error', 'Lỗi khi tải thông tin sinh viên');
+                console.error('Error:', error);
+            });
+    }
+    
+    function confirmDelete(maSV, fullName) {
+        showConfirmDialog(
+            'Xác nhận xóa sinh viên',
+            `Bạn có chắc chắn muốn xóa sinh viên "${fullName}" (${maSV})?`,
+            'warning',
+            () => deleteSinhVien(maSV)
+        );
+    }
+    
+    function deleteSinhVien(maSV) {
+        fetch(`/admin/sinhvien/delete/${maSV}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', data.message || 'Xóa sinh viên thành công');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                showAlert('error', data.message || 'Có lỗi xảy ra khi xóa sinh viên');
+            }
+        })
+        .catch(error => {
+            showAlert('error', 'Lỗi khi xóa sinh viên');
+            console.error('Error:', error);
+        });
+    }
+</script>
+
+</div>

@@ -1,0 +1,54 @@
+<!-- Sinh Vien List using Universal Template -->
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{universal/head :: head('Quản lý Sinh viên - Hệ thống Thi trắc nghiệm')}"></head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav th:replace="~{universal/admin/sidebar :: sidebar('sinhvien')}"></nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- Page Header -->
+                <div th:replace="~{universal/admin/header :: pageHeader(
+                    icon='fas fa-user-graduate', 
+                    title='Quản lý Sinh viên', 
+                    buttonText='Thêm sinh viên', 
+                    buttonAction='showAddForm()'
+                )}"></div>
+
+                <!-- Alert Messages -->
+                <div th:replace="~{universal/alerts :: alerts}"></div>
+
+                <!-- Data Card -->
+                <div th:replace="~{universal/admin/dataCard :: universalDataCard(
+                    icon='fas fa-list',
+                    title='Danh sách sinh viên',
+                    entityListVar=${danhSachSinhVien},
+                    emptyIcon='fas fa-user-slash',
+                    emptyMessage='Chưa có sinh viên nào',
+                    emptySubMessage='Hãy thêm sinh viên đầu tiên cho hệ thống',
+                    addButtonText='Thêm sinh viên đầu tiên',
+                    tableHeaders=null,
+                    tableRowFragment='~{admin/sinhvien/fragments :: tableContent}'
+                )}"></div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div th:replace="~{admin/sinhvien/fragments :: addModal}"></div>
+    <div th:replace="~{admin/sinhvien/fragments :: editModal}"></div>
+    <div th:replace="~{admin/sinhvien/fragments :: viewModal}"></div>
+    <div th:replace="~{universal/admin/modals :: deleteModal}"></div>
+
+    <!-- Common JS -->
+    <div th:replace="~{universal/commonJs :: commonJs}"></div>
+    
+    <!-- Page specific JS -->
+    <div th:replace="~{admin/sinhvien/fragments :: pageJs}"></div>
+</body>
+</html>

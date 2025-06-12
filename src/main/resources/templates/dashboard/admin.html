@@ -85,8 +85,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-users"></i> Tạo tài khoản
+                            <a class="nav-link" th:href="@{/admin/chuanbithi}">
+                                <i class="fas fa-book-open"></i> Chuẩn bị thi
                             </a>
                         </li>
                         <li class="nav-item">
@@ -168,12 +168,12 @@
                     <div class="col-md-4">
                         <div class="card">
                             <div class="card-header">
-                                <i class="fas fa-user-plus"></i> Tài khoản
+                                <i class="fas fa-book-open"></i> Chuẩn bị thi
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title">Tạo tài khoản</h5>
-                                <p class="card-text">Tạo tài khoản mới cho giáo viên.</p>
-                                <a href="#" class="btn btn-primary">Truy cập</a>
+                                <h5 class="card-title">Chuẩn bị thi</h5>
+                                <p class="card-text">Tạo đề thi và quản lý câu hỏi.</p>
+                                <a th:href="@{/admin/chuanbithi}" class="btn btn-primary">Truy cập</a>
                             </div>
                         </div>
                     </div>

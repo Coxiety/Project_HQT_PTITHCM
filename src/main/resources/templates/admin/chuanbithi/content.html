@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<body>
+    <!-- Chuẩn bị thi Content Fragment -->
+    <div th:fragment="content">
+        <!-- Exam Registration table -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-list"></i>
+                    Danh sách đăng ký thi
+                    <span id="registrationCount" class="badge bg-primary ms-2">0</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="emptyState" class="text-center py-5" style="display: none;">
+                    <i class="fas fa-clipboard-list text-muted fa-3x mb-3"></i>
+                    <h5 class="text-muted">Chưa có đăng ký thi nào</h5>
+                    <p class="text-muted">Hãy thêm đăng ký thi đầu tiên cho hệ thống</p>
+                    <button type="button" class="btn btn-primary" onclick="showRegisterModal()">
+                        <i class="fas fa-plus"></i> Đăng ký thi đầu tiên
+                    </button>
+                </div>
+
+                <div id="registrationTable">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-id-card"></i> Mã GV</th>
+                                    <th><i class="fas fa-user"></i> Tên giáo viên</th>
+                                    <th><i class="fas fa-school"></i> Lớp</th>
+                                    <th><i class="fas fa-book"></i> Môn học</th>
+                                    <th><i class="fas fa-star"></i> Trình độ</th>
+                                    <th><i class="fas fa-calendar"></i> Ngày thi</th>
+                                    <th><i class="fas fa-sort-numeric-up"></i> Lần</th>
+                                    <th><i class="fas fa-list-ol"></i> Số câu</th>
+                                    <th><i class="fas fa-clock"></i> Thời gian</th>
+                                    <th class="text-center"><i class="fas fa-tools"></i> Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="registrationTableBody">
+                                <!-- Dữ liệu sẽ được load bằng JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Modal -->
+        <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="registerModalLabel">
+                            <i class="fas fa-plus text-success"></i> Đăng ký thi mới
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="registerForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="magv" class="form-label">Mã giáo viên <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="magv" name="magv" required>
+                                            <option value="">-- Chọn giáo viên --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="malop" class="form-label">Mã lớp <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="malop" name="malop" required>
+                                            <option value="">-- Chọn lớp học --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="mamh" class="form-label">Mã môn học <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="mamh" name="mamh" required>
+                                            <option value="">-- Chọn môn học --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="trinhdo" class="form-label">Trình độ <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="trinhdo" name="trinhdo" required>
+                                            <option value="">-- Chọn trình độ --</option>
+                                            <option value="A">A - Cao đẳng/Đại học</option>
+                                            <option value="B">B - Trung cấp</option>
+                                            <option value="C">C - Sơ cấp</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="ngaythi" class="form-label">Ngày thi <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" class="form-control" id="ngaythi" name="ngaythi" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="lan" class="form-label">Lần thi <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="lan" name="lan" required>
+                                            <option value="">-- Chọn lần thi --</option>
+                                            <option value="1">Lần 1</option>
+                                            <option value="2">Lần 2</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="socauthi" class="form-label">Số câu thi <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="socauthi" name="socauthi" 
+                                               min="10" max="100" required>
+                                        <div class="form-text">Từ 10 đến 100 câu</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="thoigian" class="form-label">Thời gian (phút) <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="thoigian" name="thoigian" 
+                                               min="5" max="60" required>
+                                        <div class="form-text">Từ 5 đến 60 phút</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fas fa-times"></i> Hủy
+                                </button>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save"></i> Đăng ký
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
