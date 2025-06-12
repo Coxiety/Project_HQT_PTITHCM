@@ -1,0 +1,108 @@
+/* 
+ * Admin CSS - Hệ thống Thi trắc nghiệm
+ * Common styles for admin pages
+ */
+
+/* Sidebar Styles */
+.sidebar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.8) !important;
+    border-radius: 0.5rem;
+    margin: 0.2rem 0;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: white !important;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Card Styles */
+.card {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.8rem 1.5rem rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+/* Table Styles */
+.table th {
+    background-color: #f8f9fa;
+    border-top: none;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(102, 126, 234, 0.05);
+}
+
+/* Button Styles */
+.btn-action {
+    margin: 0 2px;
+    font-size: 0.8rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+/* Alert Styles */
+.alert {
+    border: none;
+    border-radius: 0.5rem;
+}
+
+/* Body and Layout */
+body {
+    background-color: #f8f9fa;
+}
+
+/* Class info special styling */
+.class-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+/* Info row styling */
+.info-row {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 15px 0;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        min-height: auto;
+    }
+    
+    .btn-action {
+        margin: 1px;
+        font-size: 0.7rem;
+    }
+}

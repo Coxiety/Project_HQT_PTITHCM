@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head th:replace="~{universal/head :: head('CSS Test Page')}"></head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar Test -->
+            <nav th:replace="~{universal/admin/sidebar :: sidebar('test')}"></nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- Page Header -->
+                <div th:replace="~{universal/admin/header :: pageHeader(
+                    icon='fas fa-code', 
+                    title='CSS Test Page', 
+                    buttonText='Test Button', 
+                    buttonAction='alert(\"Test!\")'
+                )}"></div>
+
+                <!-- Alert Messages Test -->
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle"></i>
+                    This is a success alert - CSS is working!
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Card Test -->
+                <div class="card shadow-hover">
+                    <div class="card-header gradient-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-palette"></i> CSS Components Test</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Buttons Test -->
+                            <div class="col-md-6">
+                                <h6>Button Styles</h6>
+                                <div class="mb-3">
+                                    <button class="btn btn-primary me-2">Primary</button>
+                                    <button class="btn btn-success me-2">Success</button>
+                                    <button class="btn btn-warning me-2">Warning</button>
+                                    <button class="btn btn-danger">Danger</button>
+                                </div>
+                                <div class="mb-3">
+                                    <button class="btn btn-sm btn-outline-info btn-action me-1">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-warning btn-action me-1">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger btn-action">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Form Test -->
+                            <div class="col-md-6">
+                                <h6>Form Elements</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Test Input <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" placeholder="Test input">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Test Select</label>
+                                    <select class="form-select">
+                                        <option>Option 1</option>
+                                        <option>Option 2</option>
+                                    </select>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="testCheck">
+                                    <label class="form-check-label" for="testCheck">
+                                        Test Checkbox
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Test -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-table"></i> Table Styles Test</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-id-badge"></i> ID</th>
+                                        <th><i class="fas fa-user"></i> Name</th>
+                                        <th><i class="fas fa-envelope"></i> Email</th>
+                                        <th class="text-center"><i class="fas fa-tools"></i> Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span class="badge bg-primary">001</span></td>
+                                        <td><strong>Test User 1</strong></td>
+                                        <td>test1@example.com</td>
+                                        <td class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-sm btn-outline-info btn-action">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-warning btn-action">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger btn-action">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge bg-success">002</span></td>
+                                        <td><strong>Test User 2</strong></td>
+                                        <td>test2@example.com</td>
+                                        <td class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-sm btn-outline-info btn-action">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-warning btn-action">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger btn-action">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Utility Classes Test -->
+                <div class="card mt-4">
+                    <div class="card-header gradient-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-magic"></i> Utility Classes Test</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="card shadow-soft">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-star text-warning fa-2x mb-2"></i>
+                                        <h6>Shadow Soft</h6>
+                                        <p class="text-muted">Soft shadow effect</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card shadow-hover border-radius-lg">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-mouse-pointer text-primary fa-2x mb-2"></i>
+                                        <h6>Shadow Hover</h6>
+                                        <p class="text-muted">Hover for effect</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card gradient-primary text-white">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-palette fa-2x mb-2"></i>
+                                        <h6>Gradient Background</h6>
+                                        <p>Primary gradient</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State Test -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-inbox"></i> Empty State Test</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="empty-state">
+                            <i class="fas fa-database"></i>
+                            <h5>No Data Available</h5>
+                            <p>This is how empty states look with our CSS.</p>
+                            <button class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Add Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <div th:replace="~{universal/commonJs :: commonJs}"></div>
+</body>
+</html>
