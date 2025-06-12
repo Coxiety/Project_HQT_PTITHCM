@@ -70,6 +70,24 @@ public class SuccessCode {
     public static final String SV_DELETE_SUCCESS_MSG = "Xóa sinh viên thành công";
     
     // ==============================================
+    // MON HOC SUCCESS - THÀNH CÔNG MÔN HỌC
+    // ==============================================
+    public static final String MH_CREATE_SUCCESS = "MH_SUC_001";
+    public static final String MH_CREATE_SUCCESS_MSG = "Thêm môn học thành công";
+    
+    public static final String MH_UPDATE_SUCCESS = "MH_SUC_002";
+    public static final String MH_UPDATE_SUCCESS_MSG = "Cập nhật môn học thành công";
+    
+    public static final String MH_DELETE_SUCCESS = "MH_SUC_003";
+    public static final String MH_DELETE_SUCCESS_MSG = "Xóa môn học thành công";
+    
+    public static final String MH_LIST_LOADED = "MH_SUC_004";
+    public static final String MH_LIST_LOADED_MSG = "Tải danh sách môn học thành công";
+    
+    public static final String MH_DETAILS_LOADED = "MH_SUC_005";
+    public static final String MH_DETAILS_LOADED_MSG = "Tải thông tin chi tiết môn học thành công";
+    
+    // ==============================================
     // DATABASE SUCCESS - THÀNH CÔNG DATABASE
     // ==============================================
     public static final String DB_CONNECTION_SUCCESS = "DB_SUC_001";

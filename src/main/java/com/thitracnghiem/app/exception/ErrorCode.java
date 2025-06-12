@@ -73,6 +73,24 @@ public class ErrorCode {
     public static final String SV_DELETE_LOGIN_FAILED_MSG = "Không thể xóa tài khoản đăng nhập của sinh viên";
     
     // ==============================================
+    // MON HOC ERRORS - LỖI MÔN HỌC
+    // ==============================================
+    public static final String MH_NOT_FOUND = "MH_001";
+    public static final String MH_NOT_FOUND_MSG = "Không tìm thấy môn học";
+    
+    public static final String MH_DUPLICATE_ID = "MH_002";
+    public static final String MH_DUPLICATE_ID_MSG = "Mã môn học đã tồn tại";
+    
+    public static final String MH_DUPLICATE_NAME = "MH_003";
+    public static final String MH_DUPLICATE_NAME_MSG = "Tên môn học đã tồn tại";
+    
+    public static final String MH_REQUIRED_FIELDS = "MH_004";
+    public static final String MH_REQUIRED_FIELDS_MSG = "Vui lòng điền đầy đủ thông tin bắt buộc";
+    
+    public static final String MH_CANNOT_DELETE_HAS_REFERENCES = "MH_005";
+    public static final String MH_CANNOT_DELETE_HAS_REFERENCES_MSG = "Không thể xóa môn học vì còn có dữ liệu liên quan";
+    
+    // ==============================================
     // BUSINESS RULE ERRORS - LỖI BUSINESS LOGIC
     // ==============================================
     public static final String GV_CANNOT_DELETE_HAS_REFERENCES = "BIZ_001";
@@ -94,6 +112,8 @@ public class ErrorCode {
     public static final String USER_GV_NOT_FOUND = "Không tìm thấy giáo viên";
     public static final String USER_SV_CANNOT_DELETE = "Không thể xóa sinh viên vì có dữ liệu liên quan";
     public static final String USER_SV_NOT_FOUND = "Không tìm thấy sinh viên";
+    public static final String USER_MH_CANNOT_DELETE = "Không thể xóa môn học vì có dữ liệu liên quan";
+    public static final String USER_MH_NOT_FOUND = "Không tìm thấy môn học";
     public static final String USER_ACCESS_DENIED = "Bạn không có quyền thực hiện thao tác này";
     public static final String USER_GENERAL_ERROR = "Đã xảy ra lỗi, vui lòng thử lại";
     
