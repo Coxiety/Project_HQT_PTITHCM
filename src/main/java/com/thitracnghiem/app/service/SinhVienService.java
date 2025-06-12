@@ -2,7 +2,6 @@ package com.thitracnghiem.app.service;
 
 import com.thitracnghiem.app.config.SessionManager;
 import com.thitracnghiem.app.exception.ErrorCode;
-import com.thitracnghiem.app.exception.SuccessCode;
 import com.thitracnghiem.app.model.SINHVIEN;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -111,7 +110,8 @@ public class SinhVienService {
     }
 
     /**
-     * Thêm sinh viên mới + Tạo SQL login + Gán StudentRole
+     * Thêm sinh viên mới (chỉ tạo record trong bảng SINHVIEN)
+     * Tài khoản SQL Server sẽ được tạo riêng thông qua module Quản lý tài khoản
      */
     public boolean addSinhVien(SINHVIEN sinhVien, int namNhapHoc) {
         try {
@@ -124,7 +124,7 @@ public class SinhVienService {
             // Backup trước khi thay đổi
             createBackup("ADD_SINHVIEN", sinhVien.getMASV());
             
-            // 1. Thêm vào bảng SINHVIEN
+            // Thêm vào bảng SINHVIEN
             String sql = "INSERT INTO SINHVIEN (MASV, HO, TEN, NGAYSINH, DIACHI, MALOP) VALUES (?, ?, ?, ?, ?, ?)";
             
             int result = jdbcTemplate.update(sql,
@@ -137,30 +137,15 @@ public class SinhVienService {
             );
             
             if (result > 0) {
-                // 2. Tạo SQL Server login (password = MASV)
-                String password = sinhVien.getMASV(); // Sử dụng MASV làm password mặc định
-                boolean loginCreated = createSqlLogin(sinhVien.getMASV(), password);
-                
-                if (loginCreated) {
-                    // 3. Gán StudentRole
-                    boolean roleAssigned = assignStudentRole(sinhVien.getMASV());
-                    
-                    if (roleAssigned) {
-                        System.out.println("✅ " + SuccessCode.SV_CREATE_SUCCESS_MSG + " - Mã sinh viên: " + sinhVien.getMASV() + " với SQL login và StudentRole");
-                        return true;
-                    } else {
-                        System.err.println("⚠️ " + ErrorCode.SV_ASSIGN_ROLE_FAILED_MSG + " - Mã sinh viên: " + sinhVien.getMASV());
-                        return true; // Vẫn coi như thành công vì đã tạo sinh viên
-                    }
-                } else {
-                    System.err.println("❌ Tạo SQL login thất bại cho: " + sinhVien.getMASV() + " với password: " + password);
-                    return true; // Vẫn coi như thành công vì đã tạo sinh viên
-                }
+                System.out.println("✅ Thêm sinh viên thành công: " + sinhVien.getMASV() + 
+                                 " - " + sinhVien.getHO() + " " + sinhVien.getTEN());
+                System.out.println("ℹ️ Lưu ý: Tài khoản SQL Server cần được tạo riêng thông qua module 'Quản lý tài khoản'");
+                return true;
             }
             
             return false;
         } catch (Exception e) {
-            System.err.println("Lỗi thêm sinh viên: " + e.getMessage());
+            System.err.println("❌ Lỗi thêm sinh viên: " + e.getMessage());
             return false;
         }
     }

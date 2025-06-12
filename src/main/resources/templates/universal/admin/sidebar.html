@@ -41,6 +41,11 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activeMenu == 'taikhoan'} ? 'active' : ''" th:href="@{/admin/taikhoan}">
+                        <i class="fas fa-users-cog"></i> Quản lý tài khoản
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" th:classappend="${activeMenu == 'backup'} ? 'active' : ''" href="#">
                         <i class="fas fa-database"></i> Sao lưu & Phục hồi
                     </a>

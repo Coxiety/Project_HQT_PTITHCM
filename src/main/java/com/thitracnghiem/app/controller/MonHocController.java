@@ -50,11 +50,13 @@ public class MonHocController {
             List<MONHOC> monHocList = monHocService.getAllMonHoc();
             model.addAttribute("monHocList", monHocList);
             model.addAttribute("newMonHoc", new MONHOC());
+            model.addAttribute("user", sessionManager.getCurrentUser());
             
             return "admin/monhoc/list";
             
         } catch (Exception e) {
             model.addAttribute("error", ErrorCode.USER_GENERAL_ERROR);
+            model.addAttribute("user", sessionManager.getCurrentUser());
             return "admin/monhoc/list";
         }
     }

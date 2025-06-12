@@ -55,7 +55,8 @@ public class GiaoVienService {
     }
 
     /**
-     * Thêm giáo viên mới + Tạo SQL login + Gán TeacherRole
+     * Thêm giáo viên mới (chỉ tạo record trong bảng GIAOVIEN)
+     * Tài khoản SQL Server sẽ được tạo riêng thông qua module Quản lý tài khoản
      */
     public boolean addGiaoVien(GIAOVIEN giaoVien) {
         try {
@@ -64,7 +65,7 @@ public class GiaoVienService {
             // Backup trước khi thay đổi
             createBackup("ADD_GIAOVIEN", giaoVien.getMAGV());
             
-            // 1. Thêm vào bảng GIAOVIEN
+            // Thêm vào bảng GIAOVIEN
             String sql = "INSERT INTO GIAOVIEN (MAGV, HO, TEN, SODTLL, DIACHI) VALUES (?, ?, ?, ?, ?)";
             
             int result = jdbcTemplate.update(sql,
@@ -76,39 +77,15 @@ public class GiaoVienService {
             );
             
             if (result > 0) {
-                // 2. Tạo SQL Server login (password = SODTLL)
-                String password = giaoVien.getSODTLL();
-                if (password == null || password.trim().isEmpty()) {
-                    password = giaoVien.getMAGV(); // Fallback nếu không có SODTLL
-                }
-                boolean loginCreated = createSqlLogin(giaoVien.getMAGV(), password);
-                
-                if (loginCreated) {
-                    // 3. Gán TeacherRole
-                    boolean roleAssigned = assignTeacherRole(giaoVien.getMAGV());
-                    
-                    if (roleAssigned) {
-                        System.out.println(SuccessCode.createFullSuccess(
-                            SuccessCode.GV_CREATE_SUCCESS, 
-                            SuccessCode.GV_CREATE_SUCCESS_MSG, 
-                            "Mã giáo viên: " + giaoVien.getMAGV() + " với SQL login và TeacherRole"));
-                        return true;
-                    } else {
-                        System.err.println(ErrorCode.createFullError(
-                            ErrorCode.GV_ASSIGN_ROLE_FAILED, 
-                            ErrorCode.GV_ASSIGN_ROLE_FAILED_MSG, 
-                            "Mã giáo viên: " + giaoVien.getMAGV()));
-                        return true;
-                    }
-                } else {
-                    System.err.println("❌ Tạo SQL login thất bại cho: " + giaoVien.getMAGV() + " với password: " + password);
-                    return true;
-                }
+                System.out.println("✅ Thêm giáo viên thành công: " + giaoVien.getMAGV() + 
+                                 " - " + giaoVien.getHO() + " " + giaoVien.getTEN());
+                System.out.println("ℹ️ Lưu ý: Tài khoản SQL Server cần được tạo riêng thông qua module 'Quản lý tài khoản'");
+                return true;
             }
             
             return false;
         } catch (Exception e) {
-            System.err.println("Lỗi thêm giáo viên: " + e.getMessage());
+            System.err.println("❌ Lỗi thêm giáo viên: " + e.getMessage());
             return false;
         }
     }

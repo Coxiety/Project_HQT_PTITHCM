@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head th:replace="~{universal/head :: head('Quản lý Tài khoản')}"></head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav th:replace="~{universal/admin/sidebar :: sidebar('taikhoan', ${user})}"></nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- Page Header -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="fas fa-users-cog text-primary"></i>
+                        <span>Quản lý Tài khoản</span>
+                    </h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button type="button" class="btn btn-success" onclick="showCreateAccountModal()">
+                            <i class="fas fa-plus"></i>
+                            <span>Tạo tài khoản mới</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Alert Messages -->
+                <div th:replace="~{universal/alerts :: alerts}"></div>
+
+                <!-- Statistics Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card text-white bg-primary statistics-card" onclick="showTeacherAccounts()" style="cursor: pointer;">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">
+                                            <span th:text="${#lists.size(teacherAccounts)}">1</span>/<span th:text="${#lists.size(allGiaoVien)}">2</span>
+                                        </h4>
+                                        <p class="card-text">Tài khoản Giáo viên</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-chalkboard-teacher fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card text-white bg-success statistics-card" onclick="showStudentAccounts()" style="cursor: pointer;">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">
+                                            <span th:text="${#lists.size(studentAccounts)}">1</span>/<span th:text="${#lists.size(allSinhVien)}">10</span>
+                                        </h4>
+                                        <p class="card-text">Tài khoản Sinh viên</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-user-graduate fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Management Tabs -->
+                <div class="card shadow-hover">
+                    <div class="card-header gradient-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-users-cog"></i> Quản lý Tài khoản Hệ thống</h5>
+                            <div>
+                                <button class="btn btn-info btn-sm me-2" id="filterTeachersBtn" onclick="filterTeacherAccounts()">
+                                    <i class="fas fa-chalkboard-teacher"></i> GV có TK
+                                </button>
+                                <button class="btn btn-success btn-sm" id="filterStudentsBtn" onclick="filterStudentAccounts()">
+                                    <i class="fas fa-user-graduate"></i> SV có TK
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Filter Status -->
+                        <div id="filterStatus" class="alert alert-info" style="display: none;">
+                            <i class="fas fa-filter"></i> 
+                            <span id="filterStatusText">Đang hiển thị tất cả tài khoản</span>
+                        </div>
+
+                        <!-- Tab Content -->
+                        <div class="tab-content mt-3" id="accountTabContent">
+                            <!-- Teacher Accounts Tab -->
+                            <div class="tab-pane fade show active" id="teacher-accounts" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">Giáo viên</h6>
+                                    <button class="btn btn-success btn-sm" onclick="showCreateTeacherAccountModal()">
+                                        <i class="fas fa-plus"></i> Tạo tài khoản GV
+                                    </button>
+                                </div>
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th><i class="fas fa-user"></i> Tên đăng nhập</th>
+                                                <th><i class="fas fa-id-badge"></i> Họ tên</th>
+                                                <th><i class="fas fa-shield-alt"></i> Role</th>
+                                                <th><i class="fas fa-calendar"></i> Ngày tạo</th>
+                                                <th><i class="fas fa-toggle-on"></i> Trạng thái</th>
+                                                <th class="text-center"><i class="fas fa-tools"></i> Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="account : ${teacherAccounts}">
+                                                <td>
+                                                    <span class="badge bg-primary" th:text="${account.username}">GV001</span>
+                                                </td>
+                                                <td>
+                                                    <strong th:text="${account.fullName}">Nguyễn Văn A</strong>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-info" th:text="${account.role == 'TeacherRole' ? 'Giáo viên' : account.role}">Giáo viên</span>
+                                                </td>
+                                                <td th:text="${account.createDate}">01/01/2024</td>
+                                                <td>
+                                                    <span th:class="${account.active} ? 'badge bg-success' : 'badge bg-danger'" 
+                                                          th:text="${account.active} ? 'Hoạt động' : 'Bị khóa'">Hoạt động</span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="btn-group" role="group">
+                                                        <button type="button" 
+                                                                class="btn btn-sm btn-outline-warning btn-action" 
+                                                                title="Reset mật khẩu"
+                                                                th:data-username="${account.username}"
+                                                                onclick="resetPassword(this.dataset.username)">
+                                                            <i class="fas fa-key"></i>
+                                                        </button>
+                                                        <button type="button" 
+                                                                class="btn btn-sm btn-outline-danger btn-action" 
+                                                                title="Xóa tài khoản"
+                                                                th:data-username="${account.username}"
+                                                                onclick="deleteAccount(this.dataset.username)">
+                                                            <i class="fas fa-user-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr th:if="${#lists.isEmpty(teacherAccounts)}">
+                                                <td colspan="6" class="text-center text-muted">
+                                                    <i class="fas fa-info-circle"></i> Chưa có tài khoản giáo viên nào
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- Student Accounts Tab -->
+                            <div class="tab-pane fade" id="student-accounts" role="tabpanel">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">Sinh viên</h6>
+                                    <button class="btn btn-success btn-sm" onclick="showCreateStudentAccountModal()">
+                                        <i class="fas fa-plus"></i> Tạo tài khoản SV
+                                    </button>
+                                </div>
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th><i class="fas fa-user"></i> Tên đăng nhập</th>
+                                                <th><i class="fas fa-id-badge"></i> Họ tên</th>
+                                                <th><i class="fas fa-shield-alt"></i> Role</th>
+                                                <th><i class="fas fa-calendar"></i> Ngày tạo</th>
+                                                <th><i class="fas fa-toggle-on"></i> Trạng thái</th>
+                                                <th class="text-center"><i class="fas fa-tools"></i> Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="account : ${studentAccounts}">
+                                                <td>
+                                                    <span class="badge bg-success" th:text="${account.username}">SV001</span>
+                                                </td>
+                                                <td>
+                                                    <strong th:text="${account.fullName}">Trần Thị B</strong>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-info" th:text="${account.role == 'StudentRole' ? 'Sinh viên' : (account.role == 'TeacherRole' ? 'Giáo viên' : account.role)}">Sinh viên</span>
+                                                </td>
+                                                <td th:text="${account.createDate}">01/01/2024</td>
+                                                <td>
+                                                    <span th:class="${account.active} ? 'badge bg-success' : 'badge bg-danger'" 
+                                                          th:text="${account.active} ? 'Hoạt động' : 'Bị khóa'">Hoạt động</span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="btn-group" role="group">
+                                                        <button type="button" 
+                                                                class="btn btn-sm btn-outline-warning btn-action" 
+                                                                title="Reset mật khẩu"
+                                                                th:data-username="${account.username}"
+                                                                onclick="resetPassword(this.dataset.username)">
+                                                            <i class="fas fa-key"></i>
+                                                        </button>
+                                                        <button type="button" 
+                                                                class="btn btn-sm btn-outline-danger btn-action" 
+                                                                title="Xóa tài khoản"
+                                                                th:data-username="${account.username}"
+                                                                onclick="deleteAccount(this.dataset.username)">
+                                                            <i class="fas fa-user-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr th:if="${#lists.isEmpty(studentAccounts)}">
+                                                <td colspan="6" class="text-center text-muted">
+                                                    <i class="fas fa-info-circle"></i> Chưa có tài khoản sinh viên nào
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Create Teacher Account Modal -->
+    <div class="modal fade" id="createTeacherAccountModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-plus text-success"></i> Tạo tài khoản Giáo viên
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createTeacherAccountForm">
+                        <div class="mb-3">
+                            <label for="teacherSelect" class="form-label">Chọn Giáo viên <span class="text-danger">*</span></label>
+                            <select class="form-select" id="teacherSelect" name="magv" required>
+                                <option value="">-- Chọn giáo viên --</option>
+                                <option th:each="gv : ${allGiaoVien}" 
+                                        th:value="${gv.MAGV}" 
+                                        th:text="${gv.MAGV + ' - ' + gv.HO + ' ' + gv.TEN}">
+                                    GV001 - Nguyễn Văn A
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="teacherPassword" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="teacherPassword" name="password" required>
+                            <div class="form-text">Mật khẩu phải có ít nhất 6 ký tự</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="teacherPasswordConfirm" class="form-label">Xác nhận mật khẩu <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="teacherPasswordConfirm" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Hủy
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="submitCreateTeacherAccount()">
+                        <i class="fas fa-save"></i> Tạo tài khoản
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Student Account Modal -->
+    <div class="modal fade" id="createStudentAccountModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-plus text-success"></i> Tạo tài khoản Sinh viên
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createStudentAccountForm">
+                        <div class="mb-3">
+                            <label for="studentSelect" class="form-label">Chọn Sinh viên <span class="text-danger">*</span></label>
+                            <select class="form-select" id="studentSelect" name="masv" required>
+                                <option value="">-- Chọn sinh viên --</option>
+                                <option th:each="sv : ${allSinhVien}" 
+                                        th:value="${sv.MASV}" 
+                                        th:text="${sv.MASV + ' - ' + sv.HO + ' ' + sv.TEN}">
+                                    SV001 - Trần Thị B
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentPassword" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="studentPassword" name="password" required>
+                            <div class="form-text">Mật khẩu phải có ít nhất 6 ký tự</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="studentPasswordConfirm" class="form-label">Xác nhận mật khẩu <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="studentPasswordConfirm" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Hủy
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="submitCreateStudentAccount()">
+                        <i class="fas fa-save"></i> Tạo tài khoản
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div class="modal fade" id="resetPasswordModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-key text-warning"></i> Reset Mật khẩu
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="resetPasswordForm">
+                        <input type="hidden" id="resetUserId" name="userid">
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">Mật khẩu mới <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="newPassword" name="newpassword" required>
+                            <div class="form-text">Mật khẩu phải có ít nhất 6 ký tự</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmNewPassword" class="form-label">Xác nhận mật khẩu mới <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="confirmNewPassword" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Hủy
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="submitResetPassword()">
+                        <i class="fas fa-key"></i> Reset mật khẩu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Show modals
+        function showCreateAccountModal() {
+            // Show a selection modal first
+            const modal = new bootstrap.Modal(document.getElementById('createTeacherAccountModal'));
+            modal.show();
+        }
+
+        function showCreateTeacherAccountModal() {
+            const modal = new bootstrap.Modal(document.getElementById('createTeacherAccountModal'));
+            modal.show();
+        }
+
+        function showCreateStudentAccountModal() {
+            const modal = new bootstrap.Modal(document.getElementById('createStudentAccountModal'));
+            modal.show();
+        }
+
+        function resetPassword(username) {
+            document.getElementById('resetUserId').value = username;
+            const modal = new bootstrap.Modal(document.getElementById('resetPasswordModal'));
+            modal.show();
+        }
+
+        function deleteAccount(username) {
+            if (confirm(`Bạn có chắc chắn muốn xóa tài khoản "${username}"?`)) {
+                fetch(`/admin/taikhoan/api/delete-account/${username}`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('success', data.message);
+                        location.reload();
+                    } else {
+                        showAlert('danger', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('danger', 'Có lỗi xảy ra khi xóa tài khoản');
+                });
+            }
+        }
+
+        // Statistics card click handlers
+        function showTeacherAccounts() {
+            filterTeacherAccounts();
+        }
+
+        function showStudentAccounts() {
+            filterStudentAccounts();
+        }
+
+        // Filter functions
+        function filterTeacherAccounts() {
+            // Show teacher section, hide student section
+            const teacherSection = document.getElementById('teacher-accounts');
+            const studentSection = document.getElementById('student-accounts');
+            
+            teacherSection.style.display = 'block';
+            studentSection.style.display = 'none';
+
+            // Scroll to teacher accounts section
+            teacherSection.scrollIntoView({ behavior: 'smooth' });
+            
+            // Update filter status
+            const teacherCount = document.querySelectorAll('#teacher-accounts tbody tr:not([style*="display: none"]) td:not([colspan])').length / 6;
+            updateFilterStatus(`Đang hiển thị ${teacherCount} tài khoản giáo viên`, 'primary');
+            
+            // Update button states
+            updateButtonStates('filterTeachersBtn');
+        }
+
+        function filterStudentAccounts() {
+            // Show student section, hide teacher section
+            const teacherSection = document.getElementById('teacher-accounts');
+            const studentSection = document.getElementById('student-accounts');
+            
+            teacherSection.style.display = 'none';
+            studentSection.style.display = 'block';
+
+            // Scroll to student accounts section
+            studentSection.scrollIntoView({ behavior: 'smooth' });
+            
+            // Update filter status
+            const studentCount = document.querySelectorAll('#student-accounts tbody tr:not([style*="display: none"]) td:not([colspan])').length / 6;
+            updateFilterStatus(`Đang hiển thị ${studentCount} tài khoản sinh viên`, 'success');
+            
+            // Update button states
+            updateButtonStates('filterStudentsBtn');
+        }
+
+        function updateFilterStatus(text, type) {
+            const filterStatus = document.getElementById('filterStatus');
+            const filterStatusText = document.getElementById('filterStatusText');
+            
+            filterStatus.className = `alert alert-${type}`;
+            filterStatusText.textContent = text;
+            filterStatus.style.display = 'block';
+        }
+
+        function updateButtonStates(activeButtonId) {
+            // Reset all buttons
+            document.getElementById('filterTeachersBtn').classList.remove('active');
+            document.getElementById('filterStudentsBtn').classList.remove('active');
+            
+            // Set active button
+            document.getElementById(activeButtonId).classList.add('active');
+        }
+
+        // Submit functions
+        function submitCreateTeacherAccount() {
+            const form = document.getElementById('createTeacherAccountForm');
+            const formData = new FormData(form);
+            const password = formData.get('password');
+            const confirmPassword = document.getElementById('teacherPasswordConfirm').value;
+
+            if (password !== confirmPassword) {
+                showAlert('danger', 'Mật khẩu xác nhận không khớp');
+                return;
+            }
+
+            if (password.length < 6) {
+                showAlert('danger', 'Mật khẩu phải có ít nhất 6 ký tự');
+                return;
+            }
+
+            const data = {
+                magv: formData.get('magv'),
+                password: password
+            };
+
+            fetch('/admin/taikhoan/api/create-teacher-account', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('createTeacherAccountModal')).hide();
+                    showAlert('success', data.message);
+                    location.reload();
+                } else {
+                    showAlert('danger', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('danger', 'Có lỗi xảy ra khi tạo tài khoản');
+            });
+        }
+
+        function submitCreateStudentAccount() {
+            const form = document.getElementById('createStudentAccountForm');
+            const formData = new FormData(form);
+            const password = formData.get('password');
+            const confirmPassword = document.getElementById('studentPasswordConfirm').value;
+
+            if (password !== confirmPassword) {
+                showAlert('danger', 'Mật khẩu xác nhận không khớp');
+                return;
+            }
+
+            if (password.length < 6) {
+                showAlert('danger', 'Mật khẩu phải có ít nhất 6 ký tự');
+                return;
+            }
+
+            const data = {
+                masv: formData.get('masv'),
+                password: password
+            };
+
+            fetch('/admin/taikhoan/api/create-student-account', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('createStudentAccountModal')).hide();
+                    showAlert('success', data.message);
+                    location.reload();
+                } else {
+                    showAlert('danger', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('danger', 'Có lỗi xảy ra khi tạo tài khoản');
+            });
+        }
+
+        function submitResetPassword() {
+            const form = document.getElementById('resetPasswordForm');
+            const formData = new FormData(form);
+            const newPassword = formData.get('newpassword');
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                showAlert('danger', 'Mật khẩu xác nhận không khớp');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                showAlert('danger', 'Mật khẩu phải có ít nhất 6 ký tự');
+                return;
+            }
+
+            const data = {
+                userid: formData.get('userid'),
+                newpassword: newPassword
+            };
+
+            fetch('/admin/taikhoan/api/reset-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('resetPasswordModal')).hide();
+                    showAlert('success', data.message);
+                } else {
+                    showAlert('danger', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('danger', 'Có lỗi xảy ra khi reset mật khẩu');
+            });
+        }
+
+        // Add hover effect for statistics cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.statistics-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+                    this.style.transition = 'all 0.2s ease';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '';
+                });
+            });
+
+            // Initialize with teacher accounts
+            filterTeacherAccounts();
+        });
+    </script>
+
+    <style>
+        /* Filter button styles */
+        .btn.active {
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            transform: scale(1.05);
+            font-weight: bold;
+        }
+        
+        #filterStatus {
+            margin-bottom: 0;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+        }
+        
+        /* Enhanced statistics card styling */
+        .statistics-card {
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .statistics-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .statistics-card:hover::before {
+            left: 100%;
+        }
+        
+        .statistics-card .card-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .statistics-card .card-text {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+        
+        .statistics-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        /* Gradient button styles */
+        .gradient-primary {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+        }
+        
+        /* Animation for filter buttons */
+        .card-header .btn {
+            transition: all 0.3s ease;
+        }
+        
+        .card-header .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+    </style>
+</body>
+</html> 
