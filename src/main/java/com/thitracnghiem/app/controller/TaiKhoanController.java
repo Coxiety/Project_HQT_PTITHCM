@@ -166,8 +166,11 @@ public class TaiKhoanController {
         }
 
         try {
-            String username = requestData.get("username");
-            String newPassword = requestData.get("newPassword");
+            // JavaScript gửi 'userid' và 'newpassword'
+            String username = requestData.get("userid");
+            String newPassword = requestData.get("newpassword");
+            
+            System.out.println("🔧 Reset password request: userid=" + username + ", newpassword=" + (newPassword != null ? "***" : "null"));
             
             if (username == null || username.trim().isEmpty() || newPassword == null || newPassword.trim().isEmpty()) {
                 response.put("success", false);
@@ -185,6 +188,8 @@ public class TaiKhoanController {
             }
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            System.err.println("❌ Lỗi reset mật khẩu: " + e.getMessage());
+            e.printStackTrace();
             response.put("success", false);
             response.put("message", "Lỗi reset mật khẩu: " + e.getMessage());
             return ResponseEntity.ok(response);

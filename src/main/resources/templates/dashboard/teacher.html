@@ -1,147 +1,125 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
-<head>    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giảng Viên - Hệ Thống Thi Trắc Nghiệm</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
-    <!-- Custom CSS -->
-    <link th:href="@{/static/css/common.css}" rel="stylesheet">
-    <link th:href="@{/static/css/dashboard.css}" rel="stylesheet">
-</head>
+<head th:replace="~{universal/head :: head('Bảng điều khiển Giảng viên')}"></head>
 <body>
-    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-        <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Hệ Thống Thi Trắc Nghiệm</a>
-        <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <ul class="navbar-nav px-3 ml-auto">
-            <li class="nav-item text-nowrap">
-                <span class="nav-link text-white mr-3" th:text="${user.fullName}"></span>
-            </li>
-            <li class="nav-item text-nowrap">
-                <a class="nav-link" th:href="@{/logout}">Đăng xuất</a>
-            </li>
-        </ul>
-    </nav>
-
     <div class="container-fluid">
         <div class="row">
-            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
-                <div class="sidebar-sticky pt-3">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#">
-                                <i class="fas fa-home"></i> Trang chủ
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-book"></i> Quản lý môn học
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-question-circle"></i> Quản lý câu hỏi
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-clipboard-list"></i> Chuẩn bị thi
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-chart-bar"></i> Bảng điểm
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-key"></i> Đổi mật khẩu
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
+            <!-- Sidebar -->
+            <nav th:replace="~{universal/teacher/sidebar :: sidebar('dashboard', ${user})}"></nav>
 
-            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Bảng điều khiển giảng viên</h1>
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+                    <h1 class="h2">
+                        <i class="fas fa-chart-bar text-warning"></i>
+                        Thống kê tổng quan giảng viên
+                    </h1>
+                    <div class="text-muted">
+                        <small>Xin chào, <strong th:text="${user.fullName}">Giảng viên</strong></small><br>
+                        <small>Cập nhật: <span id="currentTime"></span></small>
+                    </div>
                 </div>
 
+                <!-- Statistics Cards Row 1 -->
+                <div class="row mb-4">
+                    <div class="col-lg-6 col-md-6 mb-3">
+                        <div class="card stat-card bg-gradient-orange text-white h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h2 class="card-title mb-1 counter" th:text="${myDangKyThi}">0</h2>
+                                        <p class="card-text mb-0">Đăng ký thi của tôi</p>
+                                        <small class="opacity-75">Số lượng đăng ký thi đã tạo</small>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <i class="fas fa-clipboard-list fa-3x opacity-75"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 mb-3">
+                        <div class="card stat-card bg-gradient-deep-orange text-white h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h2 class="card-title mb-1 counter" th:text="${totalSinhVien}">0</h2>
+                                        <p class="card-text mb-0">Sinh viên trong hệ thống</p>
+                                        <small class="opacity-75">Tổng số sinh viên</small>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <i class="fas fa-user-graduate fa-3x opacity-75"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards Row 2 -->
+                <div class="row mb-4">
+                    <div class="col-lg-6 col-md-6 mb-3">
+                        <div class="card stat-card bg-gradient-amber text-white h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h2 class="card-title mb-1 counter" th:text="${totalMonHoc}">0</h2>
+                                        <p class="card-text mb-0">Môn học</p>
+                                        <small class="opacity-75">Tổng số môn học trong hệ thống</small>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <i class="fas fa-book fa-3x opacity-75"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 mb-3">
+                        <div class="card stat-card bg-gradient-burnt-orange text-white h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h2 class="card-title mb-1 counter" th:text="${totalLop}">0</h2>
+                                        <p class="card-text mb-0">Lớp học</p>
+                                        <small class="opacity-75">Tổng số lớp học đang hoạt động</small>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <i class="fas fa-school fa-3x opacity-75"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Welcome Message -->
                 <div class="row">
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-book"></i> Môn học
+                    <div class="col-12">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header bg-gradient-orange text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-star text-warning"></i> Chào mừng bạn đến với hệ thống!
+                                </h5>
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title">Quản lý môn học</h5>
-                                <p class="card-text">Xem danh sách môn học được phân công.</p>
-                                <a href="#" class="btn btn-primary">Truy cập</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-question-circle"></i> Câu hỏi
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">Quản lý câu hỏi</h5>
-                                <p class="card-text">Thêm, sửa, xóa câu hỏi thi trắc nghiệm.</p>
-                                <a href="#" class="btn btn-primary">Truy cập</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-clipboard-list"></i> Chuẩn bị thi
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">Chuẩn bị thi</h5>
-                                <p class="card-text">Đăng ký lịch thi cho các lớp.</p>
-                                <a href="#" class="btn btn-primary">Truy cập</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mt-4">
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-chart-bar"></i> Bảng điểm
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">Bảng điểm</h5>
-                                <p class="card-text">Xem bảng điểm của sinh viên.</p>
-                                <a href="#" class="btn btn-primary">Truy cập</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-key"></i> Mật khẩu
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">Đổi mật khẩu</h5>
-                                <p class="card-text">Thay đổi mật khẩu đăng nhập.</p>
-                                <a href="#" class="btn btn-primary">Truy cập</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-vial"></i> Thi thử
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">Thi thử</h5>
-                                <p class="card-text">Thi thử để kiểm tra đề thi.</p>
-                                <a href="#" class="btn btn-primary">Truy cập</a>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <p class="lead mb-3">Hệ thống thi trắc nghiệm dành cho giảng viên</p>
+                                        <p class="text-muted">
+                                            Từ dashboard này, bạn có thể theo dõi tổng quan về các hoạt động của mình trong hệ thống. 
+                                            Sử dụng menu bên trái để truy cập các chức năng quản lý môn học, câu hỏi, và đăng ký thi.
+                                        </p>
+                                        <div class="mt-3">
+                                            <span class="badge badge-orange me-2">
+                                                <i class="fas fa-user-tag"></i> Mã giảng viên: <strong th:text="${currentTeacher}">GV001</strong>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 text-center">
+                                        <i class="fas fa-chalkboard-teacher fa-4x text-warning opacity-75"></i>
+                                        <p class="mt-2 text-muted">Giảng viên</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -150,8 +128,135 @@
         </div>
     </div>
 
+    <style>
+        /* Orange Gradient backgrounds */
+        .bg-gradient-orange {
+            background: linear-gradient(135deg, #ff7f50 0%, #ff6347 100%);
+        }
+        
+        .bg-gradient-deep-orange {
+            background: linear-gradient(135deg, #ff5722 0%, #e64a19 100%);
+        }
+        
+        .bg-gradient-amber {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+        }
+        
+        .bg-gradient-burnt-orange {
+            background: linear-gradient(135deg, #ff8a65 0%, #ff7043 100%);
+        }
+        
+        /* Stat cards */
+        .stat-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(255, 99, 71, 0.15);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .stat-card:hover::before {
+            left: 100%;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 35px rgba(255, 99, 71, 0.25);
+        }
+        
+        .stat-card .card-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        
+        .stat-card .card-text {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        
+        .stat-icon {
+            opacity: 0.3;
+        }
+        
+        /* Badge orange */
+        .badge-orange {
+            background: linear-gradient(135deg, #ff7f50, #ff6347);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        /* Cards */
+        .card {
+            border-radius: 15px;
+        }
+        
+        .card-header {
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            border-radius: 15px 15px 0 0 !important;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .stat-card .card-title {
+                font-size: 2.2rem;
+            }
+            
+            .stat-card .card-text {
+                font-size: 1rem;
+            }
+            
+            .stat-icon i {
+                font-size: 2rem !important;
+            }
+        }
+        
+        /* Animation for numbers */
+        .counter {
+            animation: countUp 1s ease-in-out;
+        }
+        
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Text colors */
+        .text-warning {
+            color: #ff8c00 !important;
+        }
+    </style>
+
+    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <script>
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleString('vi-VN');
+            document.getElementById('currentTime').textContent = timeString;
+        }
+        
+        // Update time immediately and then every minute
+        updateTime();
+        setInterval(updateTime, 60000);
+    </script>
 </body>
 </html> 

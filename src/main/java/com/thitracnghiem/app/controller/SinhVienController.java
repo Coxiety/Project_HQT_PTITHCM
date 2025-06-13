@@ -1,5 +1,6 @@
 package com.thitracnghiem.app.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -393,6 +394,117 @@ public class SinhVienController {
         } catch (Exception e) {
             model.addAttribute("error", ErrorCode.GENERAL_ERROR_MSG + ": " + e.getMessage());
             return "redirect:/admin/sinhvien";
+        }
+    }
+
+    /**
+     * API: Lấy danh sách sinh viên chưa có SQL login
+     */
+    @GetMapping("/api/sinhvien/chua-co-login")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getSinhVienChuaCoLogin() {
+        Map<String, Object> response = new HashMap<>();
+        
+        if (!sessionManager.isAdmin()) {
+            response.put("success", false);
+            response.put("message", ErrorCode.ACCESS_DENIED_MSG);
+            return ResponseEntity.ok(response);
+        }
+
+        try {
+            List<SINHVIEN> danhSachChuaCoLogin = sinhVienService.getSinhVienChuaCoLogin();
+            response.put("success", true);
+            response.put("data", danhSachChuaCoLogin);
+            response.put("message", "Lấy danh sách sinh viên chưa có login thành công");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", ErrorCode.GENERAL_ERROR_MSG + ": " + e.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    /**
+     * API: Tạo SQL login cho sinh viên với password "test"
+     */
+    @PostMapping("/api/sinhvien/tao-login")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> taoLoginSinhVien(@RequestBody Map<String, String> requestData) {
+        Map<String, Object> response = new HashMap<>();
+        
+        if (!sessionManager.isAdmin()) {
+            response.put("success", false);
+            response.put("message", ErrorCode.ACCESS_DENIED_MSG);
+            return ResponseEntity.ok(response);
+        }
+
+        try {
+            String masv = requestData.get("masv");
+            boolean success = sinhVienService.taoSqlLoginVoiPasswordTest(masv);
+            
+            if (success) {
+                response.put("success", true);
+                response.put("message", "Tạo tài khoản SQL thành công cho sinh viên: " + masv);
+            } else {
+                response.put("success", false);
+                response.put("message", "Tạo tài khoản SQL thất bại cho sinh viên: " + masv);
+            }
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", ErrorCode.GENERAL_ERROR_MSG + ": " + e.getMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    /**
+     * API: Tạo SQL login hàng loạt cho sinh viên
+     */
+    @PostMapping("/api/sinhvien/tao-login-hang-loat")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> taoLoginSinhVienHangLoat(@RequestBody Map<String, Object> requestData) {
+        Map<String, Object> response = new HashMap<>();
+        
+        if (!sessionManager.isAdmin()) {
+            response.put("success", false);
+            response.put("message", ErrorCode.ACCESS_DENIED_MSG);
+            return ResponseEntity.ok(response);
+        }
+
+        try {
+            @SuppressWarnings("unchecked")
+            List<String> danhSachMaSV = (List<String>) requestData.get("danhSachMaSV");
+            
+            int thanhCong = 0;
+            int thatBai = 0;
+            List<String> ketQuaChiTiet = new ArrayList<>();
+
+            for (String masv : danhSachMaSV) {
+                try {
+                    boolean success = sinhVienService.taoSqlLoginVoiPasswordTest(masv);
+                    if (success) {
+                        thanhCong++;
+                        ketQuaChiTiet.add(masv + ": Thành công");
+                    } else {
+                        thatBai++;
+                        ketQuaChiTiet.add(masv + ": Thất bại");
+                    }
+                } catch (Exception e) {
+                    thatBai++;
+                    ketQuaChiTiet.add(masv + ": Lỗi - " + e.getMessage());
+                }
+            }
+
+            response.put("success", true);
+            response.put("thanhCong", thanhCong);
+            response.put("thatBai", thatBai);
+            response.put("ketQuaChiTiet", ketQuaChiTiet);
+            response.put("message", "Hoàn thành tạo login hàng loạt. Thành công: " + thanhCong + ", Thất bại: " + thatBai);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", ErrorCode.GENERAL_ERROR_MSG + ": " + e.getMessage());
+            return ResponseEntity.ok(response);
         }
     }
 } 

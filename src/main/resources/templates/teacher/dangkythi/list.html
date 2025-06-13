@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head th:replace="~{universal/head :: head('Đăng ký thi')}"></head>
+<!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav th:replace="~{universal/teacher/sidebar :: sidebar('dangkythi', ${user})}"></nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- Page Header -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="fas fa-clipboard-list text-orange"></i>
+                        <span>Đăng ký thi</span>
+                    </h1>
+                </div>
+
+                <!-- Alert Messages -->
+                <div th:replace="~{universal/alerts :: alerts}"></div>
+                <div id="alertContainer"></div>
+
+                <!-- Statistics Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card text-white bg-orange statistics-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">
+                                            <span th:text="${user?.userId}">GV001</span>
+                                        </h4>
+                                        <p class="card-text">Mã giáo viên</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-id-card fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card text-white bg-warning statistics-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">
+                                            <span id="registrationCount">1</span>
+                                        </h4>
+                                        <p class="card-text">Tổng lịch thi của tôi</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-calendar-alt fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exam Schedule Management -->
+                <div class="card shadow-hover">
+                    <div class="card-header gradient-orange text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-calendar-alt"></i> Danh sách lịch thi trong hệ thống</h5>
+                            <button class="btn btn-light btn-sm" onclick="showRegisterModal()">
+                                <i class="fas fa-plus"></i> Đăng ký lịch thi mới
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="emptyState" class="text-center py-5" style="display: none;">
+                            <i class="fas fa-calendar-times text-muted fa-3x mb-3"></i>
+                            <h5 class="text-muted">Chưa có lịch thi nào</h5>
+                            <p class="text-muted">Hiện tại chưa có lịch thi nào trong hệ thống</p>
+                            <button type="button" class="btn btn-orange" onclick="showRegisterModal()">
+                                <i class="fas fa-plus"></i> Đăng ký lịch thi đầu tiên
+                            </button>
+                        </div>
+
+                        <div id="registrationTable">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th><i class="fas fa-id-card"></i> Mã GV</th>
+                                            <th><i class="fas fa-user"></i> Tên giáo viên</th>
+                                            <th><i class="fas fa-school"></i> Lớp</th>
+                                            <th><i class="fas fa-book"></i> Môn học</th>
+                                            <th><i class="fas fa-star"></i> Trình độ</th>
+                                            <th><i class="fas fa-calendar"></i> Ngày thi</th>
+                                            <th><i class="fas fa-sort-numeric-up"></i> Lần</th>
+                                            <th><i class="fas fa-list-ol"></i> Số câu</th>
+                                            <th><i class="fas fa-clock"></i> Thời gian</th>
+                                            <th class="text-center"><i class="fas fa-info"></i> Trạng thái</th>
+                                            <th class="text-center"><i class="fas fa-cogs"></i> Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="registrationTableBody">
+                                        <!-- Dữ liệu sẽ được load bằng JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registerModalLabel">
+                        <i class="fas fa-plus text-orange"></i> Đăng ký lịch thi mới
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Alert Container -->
+                    <div id="registerAlertContainer" style="margin-bottom: 20px;">
+                        <!-- Alerts will be dynamically inserted here -->
+                    </div>
+
+                    <form id="registerForm">
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="malop" class="form-label">Lớp học <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="malop" name="malop" required>
+                                        <option value="">-- Chọn lớp học --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="mamh" class="form-label">Môn học <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="mamh" name="mamh" required>
+                                        <option value="">-- Chọn môn học --</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="trinhdo" class="form-label">Trình độ <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="trinhdo" name="trinhdo" required>
+                                        <option value="">-- Chọn trình độ --</option>
+                                        <option value="A">A - Đại học, chuyên ngành</option>
+                                        <option value="B">B - Đại học, không chuyên ngành</option>
+                                        <option value="C">C - Cao đẳng</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="lan" class="form-label">Lần thi <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="lan" name="lan" required>
+                                        <option value="">-- Chọn lần thi --</option>
+                                        <option value="1">Lần 1</option>
+                                        <option value="2">Lần 2</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="ngaythi" class="form-label">Ngày giờ thi <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="ngaythi" name="ngaythi" placeholder="dd-mm-yyyy HH:mm" required>
+                            <div class="form-text">Định dạng: ngày-tháng-năm giờ:phút (VD: 14-06-2025 08:00)</div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="socauthi" class="form-label">Số câu thi <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="socauthi" name="socauthi" 
+                                           min="10" max="100" value="20" required>
+                                    <div class="form-text">Từ 10 đến 100 câu</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="thoigian" class="form-label">Thời gian (phút) <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="thoigian" name="thoigian" 
+                                           min="5" max="60" value="30" required>
+                                    <div class="form-text">Từ 5 đến 60 phút</div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Hủy
+                    </button>
+                    <button type="button" class="btn btn-orange" onclick="submitForm()">
+                        <i class="fas fa-save"></i> Đăng ký
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">
+                        <i class="fas fa-edit text-orange"></i> Sửa đăng ký thi
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Alert Container -->
+                    <div id="editAlertContainer" style="margin-bottom: 20px;">
+                        <!-- Alerts will be dynamically inserted here -->
+                    </div>
+
+                    <form id="editForm">
+                        <input type="hidden" id="editId" name="editId">
+                        
+
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editMalopDisplay" class="form-label">Lớp học</label>
+                                    <input type="text" class="form-control" id="editMalopDisplay" readonly>
+                                    <input type="hidden" id="editMalop" name="malop">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editMamhDisplay" class="form-label">Môn học</label>
+                                    <input type="text" class="form-control" id="editMamhDisplay" readonly>
+                                    <input type="hidden" id="editMamh" name="mamh">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editTrinhdo" class="form-label">Trình độ <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="editTrinhdo" name="trinhdo" required>
+                                        <option value="">-- Chọn trình độ --</option>
+                                        <option value="A">A - Đại học, chuyên ngành</option>
+                                        <option value="B">B - Đại học, không chuyên ngành</option>
+                                        <option value="C">C - Cao đẳng</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editLanDisplay" class="form-label">Lần thi</label>
+                                    <input type="text" class="form-control" id="editLanDisplay" readonly>
+                                    <input type="hidden" id="editLan" name="lan">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="editNgaythi" class="form-label">Ngày giờ thi <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="editNgaythi" name="ngaythi" placeholder="dd-mm-yyyy HH:mm" required>
+                            <div class="form-text">Định dạng: ngày-tháng-năm giờ:phút (VD: 14-06-2025 08:00)</div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editSocauthi" class="form-label">Số câu thi <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="editSocauthi" name="socauthi" 
+                                           min="10" max="100" value="20" required>
+                                    <div class="form-text">Từ 10 đến 100 câu</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editThoigian" class="form-label">Thời gian (phút) <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="editThoigian" name="thoigian" 
+                                           min="5" max="60" value="30" required>
+                                    <div class="form-text">Từ 5 đến 60 phút</div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Hủy
+                    </button>
+                    <button type="button" class="btn btn-orange" onclick="submitEditForm()">
+                        <i class="fas fa-save"></i> Lưu thay đổi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Common JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <div th:replace="~{universal/commonJs :: commonJs}"></div>
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+    
+    <script>
+        let classList = [];
+        let subjectList = [];
+
+        // Load data khi trang được tải
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLop();
+            loadMonHoc();
+            loadAllRegistrations();
+            initializeDatePicker();
+            
+            // Test function to check if notices are visible
+            console.log('Testing notice visibility...');
+            setTimeout(() => {
+                const infoNotice = document.getElementById('registerInfoNotice');
+                const warningNotice = document.getElementById('registerWarningNotice');
+                console.log('Info notice exists:', !!infoNotice);
+                console.log('Warning notice exists:', !!warningNotice);
+                if (infoNotice) {
+                    console.log('Info notice display:', getComputedStyle(infoNotice).display);
+                    console.log('Info notice visibility:', getComputedStyle(infoNotice).visibility);
+                }
+                if (warningNotice) {
+                    console.log('Warning notice display:', getComputedStyle(warningNotice).display);
+                    console.log('Warning notice visibility:', getComputedStyle(warningNotice).visibility);
+                }
+            }, 1000);
+        });
+
+        // Khởi tạo flatpickr
+        function initializeDatePicker() {
+            flatpickr("#ngaythi", {
+                enableTime: true,
+                dateFormat: "d-m-Y H:i",
+                time_24hr: true,
+                locale: "vn",
+                minDate: "today",
+                defaultHour: 8,
+                defaultMinute: 0,
+                minuteIncrement: 15,
+                allowInput: true,
+                clickOpens: true
+            });
+            
+            // Khởi tạo cho modal sửa
+            flatpickr("#editNgaythi", {
+                enableTime: true,
+                dateFormat: "d-m-Y H:i",
+                time_24hr: true,
+                locale: "vn",
+                minDate: "today",
+                defaultHour: 8,
+                defaultMinute: 0,
+                minuteIncrement: 15,
+                allowInput: true,
+                clickOpens: true
+            });
+        }
+
+        // Load danh sách tất cả đăng ký thi
+        function loadAllRegistrations() {
+            fetch('/teacher/api/dangkythi/all')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayRegistrations(data.registrations);
+                    } else {
+                        console.error('Không thể tải danh sách lịch thi: ' + data.message);
+                        showEmptyState();
+                    }
+                })
+                .catch(error => {
+                    console.error('Không thể tải danh sách lịch thi', error);
+                    showEmptyState();
+                });
+        }
+
+        // Load danh sách lớp
+        function loadLop() {
+            fetch('/teacher/api/lop')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Lop data:', data);
+                    if (data.success) {
+                        classList = data.lops;
+                        populateLopSelect();
+                    } else {
+                        console.error('Error loading lop:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Không thể tải danh sách lớp', error);
+                });
+        }
+
+        // Load danh sách môn học
+        function loadMonHoc() {
+            fetch('/teacher/api/monhoc')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('MonHoc data:', data);
+                    if (data.success) {
+                        subjectList = data.monhocs;
+                        populateMonHocSelect();
+                    } else {
+                        console.error('Error loading monhoc:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Không thể tải danh sách môn học', error);
+                });
+        }
+
+        // Populate select lớp
+        function populateLopSelect() {
+            const select = document.getElementById('malop');
+            select.innerHTML = '<option value="">-- Chọn lớp học --</option>';
+            classList.forEach(lop => {
+                const option = document.createElement('option');
+                option.value = lop.malop;
+                option.textContent = `${lop.malop} - ${lop.tenlop}`;
+                select.appendChild(option);
+            });
+        }
+
+        // Populate select môn học
+        function populateMonHocSelect() {
+            const select = document.getElementById('mamh');
+            select.innerHTML = '<option value="">-- Chọn môn học --</option>';
+            subjectList.forEach(monhoc => {
+                const option = document.createElement('option');
+                option.value = monhoc.mamh;
+                option.textContent = `${monhoc.mamh} - ${monhoc.tenmh}`;
+                select.appendChild(option);
+            });
+        }
+
+        // Hiển thị trạng thái rỗng
+        function showEmptyState() {
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('registrationTable').style.display = 'none';
+            document.getElementById('registrationCount').textContent = '0';
+        }
+
+        // Hiển thị danh sách đăng ký thi trong bảng
+        function displayRegistrations(registrations) {
+            const tbody = document.getElementById('registrationTableBody');
+            tbody.innerHTML = '';
+            
+            if (registrations.length === 0) {
+                showEmptyState();
+                return;
+            }
+            
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('registrationTable').style.display = 'block';
+            document.getElementById('registrationCount').textContent = registrations.length;
+            
+            registrations.forEach(function(reg) {
+                const ngayThi = new Date(reg.ngaythi).toLocaleString('vi-VN');
+                const trinhDoText = getTrinhDoText(reg.trinhdo);
+                const trinhDoColor = getTrinhDoColor(reg.trinhdo);
+                const className = getClassName(reg.malop);
+                const subjectName = getSubjectName(reg.mamh);
+                
+                // Tạo ID composite
+                const regId = createCompositeId(reg.magv, reg.malop, reg.mamh, reg.lan);
+                
+                // Tính toán trạng thái
+                const status = getExamStatus(new Date(reg.ngaythi), reg.thoigian);
+                const statusBadge = getStatusBadge(status);
+                
+                // Kiểm tra xem có phải của giáo viên hiện tại không
+                const currentUserId = '[[${user?.userId}]]';
+                const isMyRegistration = reg.magv === currentUserId;
+                
+                // Tạo nút thao tác (chỉ hiển thị cho đăng ký của mình và trạng thái "Chưa bắt đầu")
+                let actionButtons = '';
+                if (isMyRegistration && status === 'Chưa bắt đầu') {
+                    actionButtons = `
+                        <button class="btn btn-sm btn-orange me-1" onclick="showEditModal('${regId}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteRegistration('${regId}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                } else if (isMyRegistration) {
+                    actionButtons = `
+                        <small class="text-muted">Không thể sửa/xóa<br>${status}</small>
+                    `;
+                } else {
+                    actionButtons = `<small class="text-muted">Không có quyền</small>`;
+                }
+                
+                const row = document.createElement('tr');
+                if (isMyRegistration) {
+                    row.classList.add('table-success');
+                }
+                
+                row.innerHTML = `
+                    <td><strong>${reg.magv}</strong></td>
+                    <td>${reg.magv}</td>
+                    <td>
+                        <span class="badge bg-info">${reg.malop}</span><br>
+                        <small class="text-muted">${className}</small>
+                    </td>
+                    <td>
+                        <span class="badge bg-primary">${reg.mamh}</span><br>
+                        <small class="text-muted">${subjectName}</small>
+                    </td>
+                    <td><span class="badge ${trinhDoColor}">${trinhDoText}</span></td>
+                    <td>
+                        <i class="fas fa-calendar text-primary"></i>
+                        ${ngayThi}
+                    </td>
+                    <td><span class="badge bg-warning text-dark">Lần ${reg.lan}</span></td>
+                    <td>
+                        <i class="fas fa-list-ol text-info"></i>
+                        ${reg.socauthi} câu
+                    </td>
+                    <td>
+                        <i class="fas fa-clock text-warning"></i>
+                        ${reg.thoigian} phút
+                    </td>
+                    <td class="text-center">
+                        ${statusBadge}
+                    </td>
+                    <td class="text-center">
+                        ${actionButtons}
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Helper functions
+        function getTrinhDoText(trinhdo) {
+            switch(trinhdo) {
+                case 'A': return 'Đại học, chuyên ngành';
+                case 'B': return 'Đại học, không chuyên ngành';
+                case 'C': return 'Cao đẳng';
+                default: return trinhdo;
+            }
+        }
+
+        function getTrinhDoColor(trinhdo) {
+            switch(trinhdo) {
+                case 'A': return 'bg-success';
+                case 'B': return 'bg-warning text-dark';
+                case 'C': return 'bg-info';
+                default: return 'bg-secondary';
+            }
+        }
+
+        function getClassName(malop) {
+            const lop = classList.find(l => l.malop === malop);
+            return lop ? lop.tenlop : 'Không xác định';
+        }
+
+        function getSubjectName(mamh) {
+            const monhoc = subjectList.find(m => m.mamh === mamh);
+            return monhoc ? monhoc.tenmh : 'Không xác định';
+        }
+
+        // Tạo ID composite
+        function createCompositeId(magv, malop, mamh, lan) {
+            return magv + "|" + malop + "|" + mamh + "|" + lan;
+        }
+
+        // Tính toán trạng thái kỳ thi
+        function getExamStatus(ngayThi, thoiGianThi) {
+            const now = new Date();
+            const startTime = new Date(ngayThi);
+            const endTime = new Date(startTime.getTime() + (thoiGianThi * 60 * 1000)); // Convert minutes to milliseconds
+            
+            if (now < startTime) {
+                return 'Chưa bắt đầu';
+            } else if (now >= startTime && now <= endTime) {
+                return 'Đang thi';
+            } else {
+                return 'Đã kết thúc';
+            }
+        }
+
+        // Tạo status badge
+        function getStatusBadge(status) {
+            switch(status) {
+                case 'Chưa bắt đầu':
+                    return '<span class="badge bg-info"><i class="fas fa-clock"></i> Chưa bắt đầu</span>';
+                case 'Đang thi':
+                    return '<span class="badge bg-warning text-dark"><i class="fas fa-play"></i> Đang thi</span>';
+                case 'Đã kết thúc':
+                    return '<span class="badge bg-secondary"><i class="fas fa-stop"></i> Đã kết thúc</span>';
+                default:
+                    return '<span class="badge bg-light text-dark">Không xác định</span>';
+            }
+        }
+
+        // Format date cho server (dd-mm-yyyy HH:mm)
+        function formatDateForServer(dateStr) {
+            // Nếu đã đúng format dd-mm-yyyy HH:mm thì return luôn
+            if (dateStr && dateStr.match(/^\d{2}-\d{2}-\d{4} \d{2}:\d{2}$/)) {
+                return dateStr;
+            }
+            
+            // Nếu format khác thì parse và format lại
+            try {
+                const date = new Date(dateStr);
+                return String(date.getDate()).padStart(2, '0') + '-' + 
+                       String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+                       date.getFullYear() + ' ' + 
+                       String(date.getHours()).padStart(2, '0') + ':' + 
+                       String(date.getMinutes()).padStart(2, '0');
+            } catch (e) {
+                console.error('Error formatting date:', e);
+                return dateStr;
+            }
+        }
+
+        // Show register modal
+        function showRegisterModal() {
+            try {
+                const modalElement = document.getElementById('registerModal');
+                const formElement = document.getElementById('registerForm');
+                
+                if (!modalElement) {
+                    console.error('Register modal not found');
+                    return;
+                }
+                
+                if (!formElement) {
+                    console.error('Register form not found');
+                    return;
+                }
+                
+                // Reset form before showing modal
+                formElement.reset();
+                
+                // Hide any existing alerts but keep persistent notices
+                hideModalAlerts('register');
+                
+                // Immediately force persistent notices to be visible
+                setTimeout(() => {
+                    forcePersistentNoticesVisible('register');
+                    
+                    // Test function - log element positions and visibility
+                    const infoNotice = document.getElementById('registerInfoNotice');
+                    const warningNotice = document.getElementById('registerWarningNotice');
+                    
+                    if (infoNotice) {
+                        const rect = infoNotice.getBoundingClientRect();
+                        console.log('Info notice position:', {
+                            top: rect.top,
+                            left: rect.left,
+                            width: rect.width,
+                            height: rect.height,
+                            visible: rect.width > 0 && rect.height > 0
+                        });
+                    }
+                    
+                    if (warningNotice) {
+                        const rect = warningNotice.getBoundingClientRect();
+                        console.log('Warning notice position:', {
+                            top: rect.top,
+                            left: rect.left,
+                            width: rect.width,
+                            height: rect.height,
+                            visible: rect.width > 0 && rect.height > 0
+                        });
+                    }
+                }, 50);
+                
+                // Show modal with proper focus management
+                const modal = new bootstrap.Modal(modalElement, {
+                    backdrop: true,
+                    keyboard: true,
+                    focus: true
+                });
+                
+                modal.show();
+                
+                // Ensure focus is properly set after modal is shown
+                modalElement.addEventListener('shown.bs.modal', function() {
+                    // Force notices to show again after modal is fully shown
+                    forcePersistentNoticesVisible('register');
+                    
+                    const firstInput = modalElement.querySelector('select, input');
+                    if (firstInput) {
+                        setTimeout(() => firstInput.focus(), 100);
+                    }
+                }, { once: true });
+                
+            } catch (error) {
+                console.error('Error showing register modal:', error.message);
+            }
+        }
+        
+        // Ensure persistent notices are always visible when modal opens
+        let noticeCheckInterval = null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listener for when modals are shown
+            const registerModal = document.getElementById('registerModal');
+            const editModal = document.getElementById('editModal');
+            
+            if (registerModal) {
+                // Modal event listeners for register modal
+                registerModal.addEventListener('shown.bs.modal', function() {
+                    console.debug('Register modal shown');
+                });
+                
+                registerModal.addEventListener('hidden.bs.modal', function() {
+                    console.debug('Register modal hidden');
+                });
+                
+                registerModal.addEventListener('hide.bs.modal', function() {
+                    console.debug('Register modal is being hidden');
+                });
+            }
+            
+            if (editModal) {
+                // Modal event listeners for edit modal
+                editModal.addEventListener('shown.bs.modal', function() {
+                    console.debug('Edit modal shown');
+                });
+                
+                editModal.addEventListener('hidden.bs.modal', function() {
+                    console.debug('Edit modal hidden');
+                });
+                
+                editModal.addEventListener('hide.bs.modal', function() {
+                    console.debug('Edit modal is being hidden');
+                });
+            }
+            
+            // Set up periodic check to ensure notices stay visible (only when modals are open)
+            if (!noticeCheckInterval) {
+                noticeCheckInterval = setInterval(function() {
+                    // Only check if modals are actually open
+                    try {
+                        const registerModal = document.getElementById('registerModal');
+                        const editModal = document.getElementById('editModal');
+                        
+                        if (registerModal && registerModal.classList.contains('show')) {
+                            forcePersistentNoticesVisible('register');
+                        }
+                        
+                        if (editModal && editModal.classList.contains('show')) {
+                            forcePersistentNoticesVisible('edit');
+                        }
+                    } catch (error) {
+                        console.debug('Notice check interval error:', error.message);
+                    }
+                }, 3000); // Check every 3 seconds (less frequent)
+            }
+        });
+        
+        // Clean up interval when page unloads
+        window.addEventListener('beforeunload', function() {
+            if (noticeCheckInterval) {
+                clearInterval(noticeCheckInterval);
+            }
+        });
+        
+        // Force persistent notices to be visible (deprecated - no longer needed)
+        function forcePersistentNoticesVisible(type) {
+            // This function is no longer needed since persistent notices were removed
+            console.debug('forcePersistentNoticesVisible called but persistent notices have been removed');
+        }
+
+        // Hide modal alerts
+        function hideModalAlerts(type) {
+            try {
+                const alertContainer = document.getElementById(`${type}AlertContainer`);
+                if (alertContainer) {
+                    alertContainer.innerHTML = '';
+                }
+            } catch (error) {
+                console.debug('Hide modal alerts error:', error.message);
+            }
+        }
+
+        // Show modal alert
+        function showModalAlert(type, isSuccess, message) {
+            try {
+                console.log('showModalAlert called:', {type, isSuccess, message});
+                
+                const alertContainer = document.getElementById(`${type}AlertContainer`);
+                if (!alertContainer) {
+                    console.error(`Alert container not found: ${type}AlertContainer`);
+                    alert((isSuccess ? '✅ Thành công: ' : '❌ Lỗi: ') + message);
+                    return;
+                }
+                
+                // Clear previous alerts
+                alertContainer.innerHTML = '';
+                
+                // Create new alert element
+                const alertClass = isSuccess ? 'alert-success' : 'alert-danger';
+                const icon = isSuccess ? 'fa-check-circle' : 'fa-exclamation-circle';
+                const title = isSuccess ? 'Thành công:' : 'Lỗi:';
+                
+                const alertHTML = `
+                    <div class="alert ${alertClass} alert-dismissible fade show" role="alert" style="
+                        display: block !important;
+                        visibility: visible !important;
+                        opacity: 1 !important;
+                        margin-bottom: 20px;
+                        border: 2px solid;
+                        font-weight: 500;
+                    ">
+                        <i class="fas ${icon}"></i>
+                        <strong>${title}</strong> ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                
+                // Insert the alert
+                alertContainer.innerHTML = alertHTML;
+                
+                console.log('Alert created and inserted:', alertContainer.innerHTML);
+                
+                // Scroll to top of modal to ensure alert is visible
+                const modalBody = document.querySelector(`#${type}Modal .modal-body`);
+                if (modalBody) {
+                    modalBody.scrollTop = 0;
+                }
+                
+                // Force persistent notices to stay visible after showing alerts
+                forcePersistentNoticesVisible(type);
+                
+                // Auto-remove success alerts after 5 seconds
+                if (isSuccess) {
+                    setTimeout(() => {
+                        const alert = alertContainer.querySelector('.alert');
+                        if (alert) {
+                            alert.remove();
+                        }
+                    }, 5000);
+                }
+                
+            } catch (error) {
+                console.error('Show modal alert error:', error.message);
+                // Fallback to browser alert
+                alert((isSuccess ? '✅ Thành công: ' : '❌ Lỗi: ') + message);
+            }
+        }
+
+        // Show edit modal
+        function showEditModal(id) {
+            fetch('/teacher/api/dangkythi/' + id)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const dangky = data.dangky;
+                        
+
+                        // Hide any existing alerts
+                        hideModalAlerts('edit');
+                        
+                        // Reset and fill form
+                        document.getElementById('editForm').reset();
+                        document.getElementById('editId').value = id;
+                        
+                        // Set hidden fields for primary keys
+                        document.getElementById('editMalop').value = dangky.malop;
+                        document.getElementById('editMamh').value = dangky.mamh;
+                        document.getElementById('editLan').value = dangky.lan;
+                        
+                        // Set display fields for primary keys (readonly)
+                        const className = getClassName(dangky.malop);
+                        const subjectName = getSubjectName(dangky.mamh);
+                        document.getElementById('editMalopDisplay').value = `${dangky.malop} - ${className}`;
+                        document.getElementById('editMamhDisplay').value = `${dangky.mamh} - ${subjectName}`;
+                        document.getElementById('editLanDisplay').value = `Lần ${dangky.lan}`;
+                        
+                        // Set editable fields
+                        document.getElementById('editTrinhdo').value = dangky.trinhdo;
+                        document.getElementById('editSocauthi').value = dangky.socauthi;
+                        document.getElementById('editThoigian').value = dangky.thoigian;
+                        
+                        // Format date for flatpickr (dd-mm-yyyy HH:mm)
+                        const ngayThi = new Date(dangky.ngaythi);
+                        const formattedDate = String(ngayThi.getDate()).padStart(2, '0') + '-' + 
+                            String(ngayThi.getMonth() + 1).padStart(2, '0') + '-' + 
+                            ngayThi.getFullYear() + ' ' + 
+                            String(ngayThi.getHours()).padStart(2, '0') + ':' + 
+                            String(ngayThi.getMinutes()).padStart(2, '0');
+                        document.getElementById('editNgaythi').value = formattedDate;
+                        
+                        // Show edit modal with proper focus management
+                        const editModalElement = document.getElementById('editModal');
+                        const modal = new bootstrap.Modal(editModalElement, {
+                            backdrop: true,
+                            keyboard: true,
+                            focus: true
+                        });
+                        
+                        modal.show();
+                        
+                        // Ensure focus is properly set after modal is shown
+                        editModalElement.addEventListener('shown.bs.modal', function() {
+                            const firstEditableInput = editModalElement.querySelector('select:not([readonly]), input:not([readonly]):not([type="hidden"])');
+                            if (firstEditableInput) {
+                                setTimeout(() => firstEditableInput.focus(), 100);
+                            }
+                        }, { once: true });
+                    } else {
+                        showAlert('danger', data.message || 'Không thể tải thông tin đăng ký thi');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('danger', 'Có lỗi xảy ra khi tải thông tin đăng ký thi');
+                });
+        }
+
+
+
+        // Submit form
+        function submitForm() {
+            console.log('submitForm called'); // Debug log
+            
+            const form = document.getElementById('registerForm');
+            if (!form) {
+                console.error('Register form not found');
+                showModalAlert('register', false, 'Không tìm thấy form đăng ký');
+                return;
+            }
+            
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            console.log('Form data:', data); // Debug log
+
+            // Validate form
+            if (!form.checkValidity()) {
+                console.log('Form validation failed');
+                form.reportValidity();
+                return;
+            }
+
+            console.log('Form is valid, submitting...'); // Debug log
+
+            // Đảm bảo format ngày thi đúng (dd-mm-yyyy HH:mm)
+            if (data.ngaythi) {
+                data.ngaythi = formatDateForServer(data.ngaythi);
+                console.log('Formatted date:', data.ngaythi);
+            }
+
+            fetch('/teacher/api/dangkythi', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.success) {
+                    showModalAlert('register', true, data.message || 'Đăng ký thi thành công!');
+                    loadAllRegistrations();
+                    
+                    // Auto close modal after 5 seconds (increased time to see the success message)
+                    setTimeout(() => {
+                        bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide();
+                    }, 5000);
+                } else {
+                    showModalAlert('register', false, data.message || 'Lỗi khi đăng ký thi');
+                }
+            })
+            .catch(error => {
+                console.error('Submit error:', error);
+                showModalAlert('register', false, 'Có lỗi xảy ra khi đăng ký thi. Vui lòng thử lại.');
+            });
+        }
+
+        // Submit edit form
+        function submitEditForm() {
+            const form = document.getElementById('editForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+
+            // Validate form
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // Đảm bảo format ngày thi đúng (dd-mm-yyyy HH:mm)
+            if (data.ngaythi) {
+                data.ngaythi = formatDateForServer(data.ngaythi);
+            }
+
+            fetch('/teacher/api/dangkythi/' + data.editId, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showModalAlert('edit', true, data.message || 'Đăng ký thi đã được cập nhật thành công!');
+                    loadAllRegistrations();
+                    
+                    // Auto close modal after 3 seconds
+                    setTimeout(() => {
+                        bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+                    }, 3000);
+                } else {
+                    showModalAlert('edit', false, data.message || 'Lỗi khi cập nhật đăng ký thi');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showModalAlert('edit', false, 'Có lỗi xảy ra khi cập nhật đăng ký thi. Vui lòng thử lại.');
+            });
+        }
+
+        // Delete registration
+        function deleteRegistration(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa đăng ký thi này không?')) {
+                fetch('/teacher/api/dangkythi/' + id, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('success', data.message || 'Đăng ký thi đã được xóa thành công!');
+                        loadAllRegistrations();
+                    } else {
+                        showAlert('danger', data.message || 'Lỗi khi xóa đăng ký thi');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('danger', 'Có lỗi xảy ra khi xóa đăng ký thi. Vui lòng thử lại.');
+                });
+            }
+        }
+
+        // Show alert
+        function showAlert(type, message) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                    <strong>${type === 'success' ? 'Thành công:' : 'Lỗi:'}</strong> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            alertContainer.innerHTML = alertHtml;
+            
+            // Scroll to alert
+            alertContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Auto hide after 10 seconds (increased from 5)
+            setTimeout(() => {
+                const alert = alertContainer.querySelector('.alert');
+                if (alert) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            }, 10000);
+        }
+    </script>
+
+    <style>
+        .bg-orange {
+            background-color: #ff5722 !important;
+        }
+        
+        .text-orange {
+            color: #ff5722 !important;
+        }
+        
+        .btn-orange {
+            background-color: #ff5722;
+            border-color: #ff5722;
+            color: white;
+        }
+        
+        .btn-orange:hover {
+            background-color: #e64a19;
+            border-color: #e64a19;
+            color: white;
+        }
+        
+        .gradient-orange {
+            background: linear-gradient(45deg, #ff5722, #e64a19);
+        }
+        
+        .statistics-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .statistics-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .shadow-hover {
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .shadow-hover:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .table td {
+            vertical-align: middle;
+        }
+        
+        .btn-sm {
+            font-size: 0.75rem;
+        }
+        
+        .me-1 {
+            margin-right: 0.25rem !important;
+        }
+        
+        /* Cải thiện UX cho input date picker */
+        #ngaythi, #editNgaythi {
+            cursor: pointer;
+            background-color: #fff !important;
+        }
+        
+        #ngaythi:focus, #editNgaythi:focus {
+            box-shadow: 0 0 0 0.2rem rgba(255, 87, 34, 0.25);
+            border-color: #ff5722;
+        }
+        
+        /* Modal alerts styling */
+        .modal-body .alert {
+            margin-bottom: 20px;
+            border: 2px solid;
+            font-weight: 500;
+        }
+        
+        .modal-body .alert-danger {
+            border-color: #dc3545;
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .modal-body .alert-success {
+            border-color: #198754;
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        
+        /* Pulse animation for important alerts */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Persistent notice styles removed - no longer needed */
+        
+        /* Force show alert messages */
+        .modal-body .alert {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            position: static !important;
+            transform: none !important;
+            max-width: none !important;
+            min-height: auto !important;
+        }
+        
+        /* Make sure modal content is visible */
+        .modal-content {
+            background-color: white !important;
+            color: black !important;
+        }
+        
+        .modal-body {
+            background-color: white !important;
+            color: black !important;
+            padding: 20px !important;
+        }
+        
+        /* Fix focus issues with modals */
+        .modal {
+            outline: none;
+        }
+        
+        .modal-dialog {
+            outline: none;
+        }
+        
+        /* Ensure proper focus outline */
+        .modal .form-control:focus,
+        .modal .form-select:focus {
+            border-color: #ff5722;
+            box-shadow: 0 0 0 0.2rem rgba(255, 87, 34, 0.25);
+        }
+        
+        .modal-body .alert-danger {
+            animation: pulse 0.5s ease-in-out;
+        }
+    </style>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

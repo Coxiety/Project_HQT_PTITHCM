@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -442,6 +443,78 @@ public class GiaoVienService {
             System.out.println("✅ Backup log created: " + action + " for " + maGV);
         } catch (Exception e) {
             System.err.println("⚠️ Lỗi tạo backup: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Lấy danh sách giáo viên chưa có SQL login
+     */
+    public List<GIAOVIEN> getGiaoVienChuaCoLogin() {
+        try {
+            JdbcTemplate jdbcTemplate = sessionManager.getJdbcTemplate();
+            String sql = """
+                SELECT gv.MAGV, gv.HO, gv.TEN, gv.SODTLL, gv.DIACHI 
+                FROM GIAOVIEN gv 
+                WHERE gv.MAGV NOT IN (
+                    SELECT name FROM sys.sql_logins WHERE name = gv.MAGV
+                )
+                ORDER BY gv.MAGV
+                """;
+            
+            return jdbcTemplate.query(sql, giaoVienRowMapper);
+        } catch (Exception e) {
+            System.err.println("Lỗi lấy danh sách giáo viên chưa có login: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Tạo SQL login cho giáo viên với password là số điện thoại
+     */
+    public boolean taoSqlLoginVoiPasswordTest(String magv) {
+        try {
+            // Kiểm tra giáo viên có tồn tại không
+            GIAOVIEN gv = getGiaoVienById(magv);
+            if (gv == null) {
+                System.err.println("❌ Giáo viên không tồn tại: " + magv);
+                return false;
+            }
+
+            // Lấy số điện thoại làm password
+            String password = gv.getSODTLL();
+            if (password == null || password.trim().isEmpty()) {
+                System.err.println("❌ Giáo viên " + magv + " không có số điện thoại");
+                return false;
+            }
+            
+            // Loại bỏ khoảng trắng và ký tự đặc biệt
+            password = password.replaceAll("[^0-9]", "");
+            if (password.length() < 6) {
+                System.err.println("❌ Số điện thoại không hợp lệ cho giáo viên " + magv + ": " + password);
+                return false;
+            }
+
+            // Tạo SQL login với password là số điện thoại
+            boolean loginCreated = createSqlLogin(magv, password);
+            
+            if (loginCreated) {
+                // Gán TeacherRole
+                boolean roleAssigned = assignTeacherRole(magv);
+                
+                if (roleAssigned) {
+                    System.out.println("✅ Tạo tài khoản SQL thành công cho giáo viên: " + magv + " với password: " + password);
+                    return true;
+                } else {
+                    System.err.println("⚠️ Gán role thất bại cho giáo viên: " + magv);
+                    return true; // Vẫn coi như thành công vì đã tạo login
+                }
+            } else {
+                System.err.println("❌ Tạo SQL login thất bại cho: " + magv);
+                return false;
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi tạo SQL login cho giáo viên " + magv + ": " + e.getMessage());
+            return false;
         }
     }
 } 

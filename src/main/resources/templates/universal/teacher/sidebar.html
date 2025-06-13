@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<body>
+    <!-- Teacher Sidebar Fragment -->
+    <nav th:fragment="sidebar(activeMenu, user)" class="col-md-3 col-lg-2 d-md-block sidebar collapse teacher-sidebar">
+        <div class="position-sticky pt-3">
+            <div class="text-center pb-3">
+                <h5 class="text-white">Hệ Thống Thi Trắc Nghiệm</h5>
+                <p class="text-white-50" th:text="'Xin chào, ' + ${user?.fullName}">Xin chào, Giảng viên</p>
+                <small class="text-warning"><i class="fas fa-chalkboard-teacher"></i> Giảng viên</small>
+            </div>
+            
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activeMenu == 'dashboard'} ? 'active' : ''" th:href="@{/teacher/dashboard}">
+                        <i class="fas fa-home"></i> Trang chủ
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activeMenu == 'cauhoi'} ? 'active' : ''" th:href="@{/teacher/cauhoi}">
+                        <i class="fas fa-question-circle"></i> Quản lý câu hỏi
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activeMenu == 'dangkythi'} ? 'active' : ''" th:href="@{/teacher/dangkythi}">
+                        <i class="fas fa-clipboard-list"></i> Đăng ký thi
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activeMenu == 'bangdiem'} ? 'active' : ''" href="#">
+                        <i class="fas fa-chart-bar"></i> Bảng điểm
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activeMenu == 'thithu'} ? 'active' : ''" href="#">
+                        <i class="fas fa-vial"></i> Thi thử
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${activeMenu == 'profile'} ? 'active' : ''" href="#">
+                        <i class="fas fa-user-edit"></i> Thông tin cá nhân
+                    </a>
+                </li>
+            </ul>
+            
+            <hr class="text-white-50">
+            <ul class="nav flex-column mb-2">
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <style>
+        /* Teacher Sidebar with Orange Theme */
+        .teacher-sidebar {
+            background: linear-gradient(180deg, #ff5722 0%, #e64a19 50%, #d84315 100%);
+            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.3);
+        }
+        
+        .teacher-sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            margin: 2px 10px;
+            padding: 12px 15px;
+        }
+        
+        .teacher-sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transform: translateX(5px);
+            box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
+        }
+        
+        .teacher-sidebar .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 3px 15px rgba(255, 255, 255, 0.2);
+        }
+        
+        .teacher-sidebar .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+            color: #ffab91;
+        }
+        
+        .teacher-sidebar .nav-link.active i {
+            color: #fff;
+        }
+        
+        .teacher-sidebar h5 {
+            color: #fff;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .teacher-sidebar .text-warning {
+            color: #ffcc80 !important;
+        }
+        
+        .teacher-sidebar hr {
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</body>
+</html> 

@@ -9,110 +9,121 @@
 
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Bảng điều khiển</h1>
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+                    <h1 class="h2">
+                        <i class="fas fa-chart-bar text-primary"></i>
+                        Thống kê tổng quan hệ thống
+                    </h1>
+                    <small class="text-muted">Cập nhật: <span id="currentTime"></span></small>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-users"></i> Giáo viên
-                            </div>
+                <!-- Statistics Cards Row 1 -->
+                <div class="row mb-4">
+                    <div class="col-lg-6 col-md-6 mb-3">
+                        <div class="card stat-card bg-gradient-primary text-white h-100">
                             <div class="card-body">
-                                <h5 class="card-title">Quản lý giáo viên</h5>
-                                <p class="card-text">Thêm, sửa, xóa thông tin giáo viên.</p>
-                                <a th:href="@{/admin/giaovien}" class="btn btn-primary">Truy cập</a>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h2 class="card-title mb-1 counter" th:text="${totalGiaoVien}">0</h2>
+                                        <p class="card-text mb-0">Giáo viên</p>
+                                        <small class="opacity-75">Đang hoạt động trong hệ thống</small>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <i class="fas fa-chalkboard-teacher fa-3x opacity-75"></i>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-user-graduate"></i> Sinh viên
-                            </div>
+                    <div class="col-lg-6 col-md-6 mb-3">
+                        <div class="card stat-card bg-gradient-success text-white h-100">
                             <div class="card-body">
-                                <h5 class="card-title">Quản lý sinh viên</h5>
-                                <p class="card-text">Thêm, sửa, xóa thông tin sinh viên.</p>
-                                <a th:href="@{/admin/sinhvien}" class="btn btn-primary">Truy cập</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-book"></i> Môn học
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">Quản lý môn học</h5>
-                                <p class="card-text">Thêm, sửa, xóa thông tin môn học.</p>
-                                <a th:href="@{/admin/monhoc}" class="btn btn-primary">Truy cập</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mt-4">
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-chalkboard"></i> Lớp học
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">Quản lý lớp học</h5>
-                                <p class="card-text">Thêm, sửa, xóa thông tin lớp học.</p>
-                                <a th:href="@{/admin/lophoc}" class="btn btn-primary">Truy cập</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-book-open"></i> Chuẩn bị thi
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">Chuẩn bị thi</h5>
-                                <p class="card-text">Tạo đề thi và quản lý câu hỏi.</p>
-                                <a th:href="@{/admin/chuanbithi}" class="btn btn-primary">Truy cập</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-users-cog"></i> Tài khoản
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">Quản lý tài khoản</h5>
-                                <p class="card-text">Tạo và quản lý tài khoản hệ thống.</p>
-                                <a th:href="@{/admin/taikhoan}" class="btn btn-primary">Truy cập</a>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h2 class="card-title mb-1 counter" th:text="${totalSinhVien}">0</h2>
+                                        <p class="card-text mb-0">Sinh viên</p>
+                                        <small class="opacity-75">Đang theo học tại trường</small>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <i class="fas fa-user-graduate fa-3x opacity-75"></i>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="row mt-4">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-database"></i> Dữ liệu
-                            </div>
+                <!-- Statistics Cards Row 2 -->
+                <div class="row mb-4">
+                    <div class="col-lg-6 col-md-6 mb-3">
+                        <div class="card stat-card bg-gradient-info text-white h-100">
                             <div class="card-body">
-                                <h5 class="card-title">Sao lưu & Phục hồi</h5>
-                                <p class="card-text">Sao lưu và phục hồi cơ sở dữ liệu.</p>
-                                <a href="#" class="btn btn-primary">Truy cập</a>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h2 class="card-title mb-1 counter" th:text="${totalMonHoc}">0</h2>
+                                        <p class="card-text mb-0">Môn học</p>
+                                        <small class="opacity-75">Môn học được giảng dạy</small>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <i class="fas fa-book fa-3x opacity-75"></i>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <i class="fas fa-chart-line"></i> Thống kê
-                            </div>
+                    <div class="col-lg-6 col-md-6 mb-3">
+                        <div class="card stat-card bg-gradient-warning text-white h-100">
                             <div class="card-body">
-                                <h5 class="card-title">Báo cáo thống kê</h5>
-                                <p class="card-text">Xem báo cáo và thống kê hệ thống.</p>
-                                <a href="#" class="btn btn-primary">Truy cập</a>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h2 class="card-title mb-1 counter" th:text="${totalLop}">0</h2>
+                                        <p class="card-text mb-0">Lớp học</p>
+                                        <small class="opacity-75">Lớp học đang hoạt động</small>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <i class="fas fa-school fa-3x opacity-75"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards Row 3 -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card stat-card bg-gradient-secondary text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h2 class="card-title mb-1 counter" th:text="${totalDangKyThi}">0</h2>
+                                        <p class="card-text mb-0">Danh sách đăng ký thi</p>
+                                        <small class="opacity-75">Tổng số đăng ký thi của giáo viên</small>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <i class="fas fa-list-alt fa-3x opacity-75"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards Row 4 -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card stat-card bg-gradient-dark text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h2 class="card-title mb-1 counter" th:text="${totalTaiKhoan}">0</h2>
+                                        <p class="card-text mb-0">Tổng số tài khoản hệ thống</p>
+                                        <small class="opacity-75">Bao gồm tài khoản giáo viên và sinh viên</small>
+                                    </div>
+                                    <div class="stat-icon">
+                                        <i class="fas fa-users-cog fa-3x opacity-75"></i>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -121,8 +132,119 @@
         </div>
     </div>
 
+    <style>
+        /* Gradient backgrounds */
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .bg-gradient-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .bg-gradient-info {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .bg-gradient-warning {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .bg-gradient-secondary {
+            background: linear-gradient(135deg, #667db6 0%, #0082c8 100%);
+        }
+        
+        .bg-gradient-dark {
+            background: linear-gradient(135deg, #667db6 0%, #0082c8 100%, #0082c8 100%, #667db6 100%);
+        }
+        
+        /* Stat cards */
+        .stat-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .stat-card:hover::before {
+            left: 100%;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+        }
+        
+        .stat-card .card-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        
+        .stat-card .card-text {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        
+        .stat-icon {
+            opacity: 0.3;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .stat-card .card-title {
+                font-size: 2.2rem;
+            }
+            
+            .stat-card .card-text {
+                font-size: 1rem;
+            }
+            
+            .stat-icon i {
+                font-size: 2rem !important;
+            }
+        }
+        
+        /* Animation for numbers */
+        .counter {
+            animation: countUp 1s ease-in-out;
+        }
+        
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <script>
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleString('vi-VN');
+            document.getElementById('currentTime').textContent = timeString;
+        }
+        
+        // Update time immediately and then every minute
+        updateTime();
+        setInterval(updateTime, 60000);
+    </script>
 </body>
 </html> 

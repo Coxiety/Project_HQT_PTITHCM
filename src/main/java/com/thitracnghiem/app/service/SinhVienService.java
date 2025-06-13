@@ -393,6 +393,97 @@ public class SinhVienService {
     }
 
     /**
+     * Lấy danh sách sinh viên chưa có SQL login
+     */
+    public List<SINHVIEN> getSinhVienChuaCoLogin() {
+        try {
+            JdbcTemplate jdbcTemplate = sessionManager.getJdbcTemplate();
+            String sql = """
+                SELECT sv.MASV, sv.HO, sv.TEN, sv.MALOP, sv.NGAYSINH, sv.DIACHI 
+                FROM SINHVIEN sv 
+                WHERE sv.MASV NOT IN (
+                    SELECT name FROM sys.sql_logins WHERE name = sv.MASV
+                )
+                ORDER BY sv.MASV
+                """;
+            
+            return jdbcTemplate.query(sql, sinhVienRowMapper);
+        } catch (Exception e) {
+            System.err.println("Lỗi lấy danh sách sinh viên chưa có login: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Tạo SQL login cho sinh viên với password là ngày sinh (DDMMYY)
+     */
+    public boolean taoSqlLoginVoiPasswordTest(String masv) {
+        try {
+            // Kiểm tra sinh viên có tồn tại không
+            SINHVIEN sv = getSinhVienById(masv);
+            if (sv == null) {
+                System.err.println("❌ Sinh viên không tồn tại: " + masv);
+                return false;
+            }
+
+            // Tạo password từ ngày sinh (DDMMYY)
+            String password = convertNgaySinhToPassword(sv.getNGAYSINH());
+            if (password == null || password.length() != 6) {
+                System.err.println("❌ Không thể tạo password từ ngày sinh cho sinh viên " + masv);
+                return false;
+            }
+
+            // Tạo SQL login với password là ngày sinh
+            boolean loginCreated = createSqlLogin(masv, password);
+            
+            if (loginCreated) {
+                // Gán StudentRole
+                boolean roleAssigned = assignStudentRole(masv);
+                
+                if (roleAssigned) {
+                    System.out.println("✅ Tạo tài khoản SQL thành công cho sinh viên: " + masv + " với password: " + password);
+                    return true;
+                } else {
+                    System.err.println("⚠️ Gán role thất bại cho sinh viên: " + masv);
+                    return true; // Vẫn coi như thành công vì đã tạo login
+                }
+            } else {
+                System.err.println("❌ Tạo SQL login thất bại cho: " + masv);
+                return false;
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi tạo SQL login cho sinh viên " + masv + ": " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Chuyển đổi ngày sinh thành password (DDMMYY)
+     * Ví dụ: 11/03/2001 -> 110301
+     */
+    private String convertNgaySinhToPassword(java.util.Date ngaySinh) {
+        try {
+            if (ngaySinh == null) {
+                return null;
+            }
+            
+            // Chuyển java.util.Date thành LocalDate
+            java.time.LocalDate localDate = ngaySinh.toInstant()
+                .atZone(java.time.ZoneId.systemDefault())
+                .toLocalDate();
+                
+            int day = localDate.getDayOfMonth();
+            int month = localDate.getMonthValue();
+            int year = localDate.getYear() % 100; // Lấy 2 chữ số cuối của năm
+            
+            return String.format("%02d%02d%02d", day, month, year);
+        } catch (Exception e) {
+            System.err.println("Lỗi chuyển đổi ngày sinh: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Tạo backup trước khi thay đổi dữ liệu
      */
     private void createBackup(String operation, String entityId) {

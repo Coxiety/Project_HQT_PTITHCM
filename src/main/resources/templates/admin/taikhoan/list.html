@@ -15,12 +15,7 @@
                         <i class="fas fa-users-cog text-primary"></i>
                         <span>Quản lý Tài khoản</span>
                     </h1>
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <button type="button" class="btn btn-success" onclick="showCreateAccountModal()">
-                            <i class="fas fa-plus"></i>
-                            <span>Tạo tài khoản mới</span>
-                        </button>
-                    </div>
+
                 </div>
 
                 <!-- Alert Messages -->
@@ -92,7 +87,7 @@
                             <div class="tab-pane fade show active" id="teacher-accounts" role="tabpanel">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="mb-0">Giáo viên</h6>
-                                    <button class="btn btn-success btn-sm" onclick="showCreateTeacherAccountModal()">
+                                    <button class="btn btn-success btn-sm" onclick="showCreateLoginModal('teacher')">
                                         <i class="fas fa-plus"></i> Tạo tài khoản GV
                                     </button>
                                 </div>
@@ -158,7 +153,7 @@
                             <div class="tab-pane fade" id="student-accounts" role="tabpanel">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="mb-0">Sinh viên</h6>
-                                    <button class="btn btn-success btn-sm" onclick="showCreateStudentAccountModal()">
+                                    <button class="btn btn-success btn-sm" onclick="showCreateLoginModal('student')">
                                         <i class="fas fa-plus"></i> Tạo tài khoản SV
                                     </button>
                                 </div>
@@ -226,92 +221,72 @@
         </div>
     </div>
 
-    <!-- Create Teacher Account Modal -->
-    <div class="modal fade" id="createTeacherAccountModal" tabindex="-1">
-        <div class="modal-dialog">
+    <!-- Modal tạo tài khoản SQL -->
+    <div class="modal fade" id="createLoginModal" tabindex="-1" aria-labelledby="createLoginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-user-plus text-success"></i> Tạo tài khoản Giáo viên
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="createLoginModalLabel">
+                        <i class="fas fa-user-plus"></i> <span id="modalTitle">Tạo tài khoản SQL</span>
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="createTeacherAccountForm">
-                        <div class="mb-3">
-                            <label for="teacherSelect" class="form-label">Chọn Giáo viên <span class="text-danger">*</span></label>
-                            <select class="form-select" id="teacherSelect" name="magv" required>
-                                <option value="">-- Chọn giáo viên --</option>
-                                <option th:each="gv : ${allGiaoVien}" 
-                                        th:value="${gv.MAGV}" 
-                                        th:text="${gv.MAGV + ' - ' + gv.HO + ' ' + gv.TEN}">
-                                    GV001 - Nguyễn Văn A
-                                </option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="teacherPassword" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
-                            <input type="password" class="form-control" id="teacherPassword" name="password" required>
-                            <div class="form-text">Mật khẩu phải có ít nhất 6 ký tự</div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="teacherPasswordConfirm" class="form-label">Xác nhận mật khẩu <span class="text-danger">*</span></label>
-                            <input type="password" class="form-control" id="teacherPasswordConfirm" required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times"></i> Hủy
-                    </button>
-                    <button type="button" class="btn btn-success" onclick="submitCreateTeacherAccount()">
-                        <i class="fas fa-save"></i> Tạo tài khoản
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+                    <div id="loginCreateAlert" class="alert d-none" role="alert"></div>
+                    
+                    <!-- Thông tin -->
+                    <div class="alert alert-info" id="passwordInfoAlert">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Thông tin:</strong> <span id="passwordInfoText">Password mặc định được tạo tự động</span>
+                    </div>
 
-    <!-- Create Student Account Modal -->
-    <div class="modal fade" id="createStudentAccountModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-user-plus text-success"></i> Tạo tài khoản Sinh viên
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="createStudentAccountForm">
-                        <div class="mb-3">
-                            <label for="studentSelect" class="form-label">Chọn Sinh viên <span class="text-danger">*</span></label>
-                            <select class="form-select" id="studentSelect" name="masv" required>
-                                <option value="">-- Chọn sinh viên --</option>
-                                <option th:each="sv : ${allSinhVien}" 
-                                        th:value="${sv.MASV}" 
-                                        th:text="${sv.MASV + ' - ' + sv.HO + ' ' + sv.TEN}">
-                                    SV001 - Trần Thị B
-                                </option>
-                            </select>
+                    <!-- Tải dữ liệu -->
+                    <div id="loadingLoginData" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Đang tải...</span>
                         </div>
-                        <div class="mb-3">
-                            <label for="studentPassword" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
-                            <input type="password" class="form-control" id="studentPassword" name="password" required>
-                            <div class="form-text">Mật khẩu phải có ít nhất 6 ký tự</div>
+                        <p class="mt-2" id="loadingText">Đang tải danh sách...</p>
+                    </div>
+
+                    <!-- Danh sách chưa có login -->
+                    <div id="loginListContent" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0" id="listTitle">Danh sách chưa có tài khoản SQL</h6>
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAll()">
+                                    <i class="fas fa-check-square"></i> Chọn tất cả
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="deselectAll()">
+                                    <i class="fas fa-square"></i> Bỏ chọn tất cả
+                                </button>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="studentPasswordConfirm" class="form-label">Xác nhận mật khẩu <span class="text-danger">*</span></label>
-                            <input type="password" class="form-control" id="studentPasswordConfirm" required>
+
+                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-sm table-hover">
+                                <thead class="table-light sticky-top" id="tableHeader">
+                                    <!-- Headers will be populated dynamically -->
+                                </thead>
+                                <tbody id="dataList">
+                                    <!-- Data will be populated here -->
+                                </tbody>
+                            </table>
                         </div>
-                    </form>
+                    </div>
+
+                    <!-- Không có dữ liệu -->
+                    <div id="noLoginData" class="text-center py-4" style="display: none;">
+                        <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+                        <h5 id="noDataTitle">Tất cả đã có tài khoản SQL</h5>
+                        <p class="text-muted" id="noDataMessage">Không có ai chưa có tài khoản SQL trong hệ thống.</p>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times"></i> Hủy
+                        <i class="fas fa-times"></i> Đóng
                     </button>
-                    <button type="button" class="btn btn-success" onclick="submitCreateStudentAccount()">
-                        <i class="fas fa-save"></i> Tạo tài khoản
+                    <button type="button" class="btn btn-success" id="createSelectedLoginBtn" onclick="createSelectedLogin()" disabled>
+                        <i class="fas fa-plus-circle"></i> Tạo tài khoản đã chọn
                     </button>
                 </div>
             </div>
@@ -334,7 +309,7 @@
                         <div class="mb-3">
                             <label for="newPassword" class="form-label">Mật khẩu mới <span class="text-danger">*</span></label>
                             <input type="password" class="form-control" id="newPassword" name="newpassword" required>
-                            <div class="form-text">Mật khẩu phải có ít nhất 6 ký tự</div>
+                            <div class="form-text">Mật khẩu phải có ít nhất 4 ký tự</div>
                         </div>
                         <div class="mb-3">
                             <label for="confirmNewPassword" class="form-label">Xác nhận mật khẩu mới <span class="text-danger">*</span></label>
@@ -355,21 +330,351 @@
     </div>
 
     <script>
-        // Show modals
-        function showCreateAccountModal() {
-            // Show a selection modal first
-            const modal = new bootstrap.Modal(document.getElementById('createTeacherAccountModal'));
-            modal.show();
+        // ===== TẠO TÀI KHOẢN SQL FUNCTIONS =====
+        
+        // Biến global
+        let currentType = ''; // 'teacher' hoặc 'student'
+        let chuaCoLoginData = [];
+
+        // Hàm hiển thị modal tạo tài khoản
+        function showCreateLoginModal(type) {
+            console.log('showCreateLoginModal called with type:', type);
+            
+            currentType = type;
+            const modalElement = document.getElementById('createLoginModal');
+            console.log('Modal element found:', modalElement);
+            
+            if (!modalElement) {
+                alert('Không tìm thấy modal element!');
+                return;
+            }
+            
+            try {
+                const modal = new bootstrap.Modal(modalElement);
+                console.log('Bootstrap modal created:', modal);
+                modal.show();
+                
+                // Reset và load dữ liệu
+                resetLoginModal();
+                loadDataChuaCoLogin();
+            } catch (error) {
+                console.error('Error creating/showing modal:', error);
+                alert('Lỗi khi hiển thị modal: ' + error.message);
+            }
         }
 
-        function showCreateTeacherAccountModal() {
-            const modal = new bootstrap.Modal(document.getElementById('createTeacherAccountModal'));
-            modal.show();
+        // Reset modal
+        function resetLoginModal() {
+            document.getElementById('loginCreateAlert').classList.add('d-none');
+            document.getElementById('loadingLoginData').style.display = 'block';
+            document.getElementById('loginListContent').style.display = 'none';
+            document.getElementById('noLoginData').style.display = 'none';
+            document.getElementById('createSelectedLoginBtn').disabled = true;
+            chuaCoLoginData = [];
+            
+            // Cập nhật text theo type
+            if (currentType === 'teacher') {
+                document.getElementById('modalTitle').textContent = 'Tạo tài khoản SQL cho Giáo viên';
+                document.getElementById('loadingText').textContent = 'Đang tải danh sách giáo viên chưa có tài khoản...';
+                document.getElementById('listTitle').textContent = 'Giáo viên chưa có tài khoản SQL';
+                document.getElementById('noDataTitle').textContent = 'Không có tài khoản GV nào cần được tạo';
+                document.getElementById('noDataMessage').textContent = 'Tất cả giáo viên đã có tài khoản SQL trong hệ thống.';
+                document.getElementById('passwordInfoText').innerHTML = 'Password mặc định là <strong>số điện thoại</strong> của giáo viên';
+            } else {
+                document.getElementById('modalTitle').textContent = 'Tạo tài khoản SQL cho Sinh viên';
+                document.getElementById('loadingText').textContent = 'Đang tải danh sách sinh viên chưa có tài khoản...';
+                document.getElementById('listTitle').textContent = 'Sinh viên chưa có tài khoản SQL';
+                document.getElementById('noDataTitle').textContent = 'Không có tài khoản SV nào cần được tạo';
+                document.getElementById('noDataMessage').textContent = 'Tất cả sinh viên đã có tài khoản SQL trong hệ thống.';
+                document.getElementById('passwordInfoText').innerHTML = 'Password mặc định là <strong>ngày sinh</strong> (DDMMYY - VD: 11/03/2001 → 110301)';
+            }
         }
 
-        function showCreateStudentAccountModal() {
-            const modal = new bootstrap.Modal(document.getElementById('createStudentAccountModal'));
-            modal.show();
+        // Load danh sách chưa có login
+        function loadDataChuaCoLogin() {
+            const endpoint = currentType === 'teacher' 
+                ? '/admin/giaovien/api/giaovien/chua-co-login'
+                : '/admin/sinhvien/api/sinhvien/chua-co-login';
+                
+            console.log('Loading data from endpoint:', endpoint);
+                
+            fetch(endpoint)
+                .then(response => {
+                    console.log('API Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('API Response data:', data);
+                    document.getElementById('loadingLoginData').style.display = 'none';
+                    
+                    if (data.success) {
+                        chuaCoLoginData = data.data;
+                        console.log('Data length:', chuaCoLoginData.length);
+                        
+                        if (chuaCoLoginData.length === 0) {
+                            console.log('No data - showing no data message');
+                            document.getElementById('noLoginData').style.display = 'block';
+                        } else {
+                            console.log('Has data - displaying list');
+                            displayDataList();
+                            document.getElementById('loginListContent').style.display = 'block';
+                        }
+                    } else {
+                        console.error('API returned error:', data.message);
+                        showLoginAlert('danger', 'Lỗi: ' + (data.message || 'Không thể tải dữ liệu'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('loadingLoginData').style.display = 'none';
+                    showLoginAlert('danger', 'Lỗi kết nối: ' + error.message);
+                });
+        }
+
+        // Hiển thị danh sách
+        function displayDataList() {
+            const headerElement = document.getElementById('tableHeader');
+            const bodyElement = document.getElementById('dataList');
+            
+            // Clear previous content
+            headerElement.innerHTML = '';
+            bodyElement.innerHTML = '';
+            
+            if (currentType === 'teacher') {
+                // Header cho giáo viên
+                headerElement.innerHTML = `
+                    <tr>
+                        <th style="width: 50px;">
+                            <input type="checkbox" id="checkAll" onchange="toggleAll(this)">
+                        </th>
+                        <th>Mã GV</th>
+                        <th>Họ tên</th>
+                        <th>Số điện thoại</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                `;
+                
+                // Data cho giáo viên
+                chuaCoLoginData.forEach(gv => {
+                    const row = bodyElement.insertRow();
+                    row.innerHTML = `
+                        <td>
+                            <input type="checkbox" class="item-checkbox" value="${gv.magv}" onchange="updateCreateButton()">
+                        </td>
+                        <td><span class="badge bg-primary">${gv.magv}</span></td>
+                        <td><strong>${gv.ho} ${gv.ten}</strong></td>
+                        <td>${gv.sodtll || 'N/A'}</td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-sm btn-success" onclick="createSingleLogin('${gv.magv}')">
+                                <i class="fas fa-plus"></i> Tạo
+                            </button>
+                        </td>
+                    `;
+                });
+            } else {
+                // Header cho sinh viên
+                headerElement.innerHTML = `
+                    <tr>
+                        <th style="width: 50px;">
+                            <input type="checkbox" id="checkAll" onchange="toggleAll(this)">
+                        </th>
+                        <th>Mã SV</th>
+                        <th>Họ tên</th>
+                        <th>Lớp</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                `;
+                
+                // Data cho sinh viên
+                chuaCoLoginData.forEach(sv => {
+                    const row = bodyElement.insertRow();
+                    row.innerHTML = `
+                        <td>
+                            <input type="checkbox" class="item-checkbox" value="${sv.masv}" onchange="updateCreateButton()">
+                        </td>
+                        <td><span class="badge bg-success">${sv.masv}</span></td>
+                        <td><strong>${sv.ho} ${sv.ten}</strong></td>
+                        <td>${sv.malop || 'N/A'}</td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-sm btn-success" onclick="createSingleLogin('${sv.masv}')">
+                                <i class="fas fa-plus"></i> Tạo
+                            </button>
+                        </td>
+                    `;
+                });
+            }
+        }
+
+        // Chọn tất cả
+        function selectAll() {
+            const checkboxes = document.querySelectorAll('.item-checkbox');
+            checkboxes.forEach(cb => cb.checked = true);
+            document.getElementById('checkAll').checked = true;
+            updateCreateButton();
+        }
+
+        // Bỏ chọn tất cả
+        function deselectAll() {
+            const checkboxes = document.querySelectorAll('.item-checkbox');
+            checkboxes.forEach(cb => cb.checked = false);
+            document.getElementById('checkAll').checked = false;
+            updateCreateButton();
+        }
+
+        // Toggle tất cả
+        function toggleAll(masterCheckbox) {
+            const checkboxes = document.querySelectorAll('.item-checkbox');
+            checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+            updateCreateButton();
+        }
+
+        // Cập nhật nút tạo
+        function updateCreateButton() {
+            const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
+            const createBtn = document.getElementById('createSelectedLoginBtn');
+            
+            if (checkedBoxes.length > 0) {
+                createBtn.disabled = false;
+                createBtn.innerHTML = `<i class="fas fa-plus-circle"></i> Tạo tài khoản (${checkedBoxes.length})`;
+            } else {
+                createBtn.disabled = true;
+                createBtn.innerHTML = `<i class="fas fa-plus-circle"></i> Tạo tài khoản đã chọn`;
+            }
+            
+            // Cập nhật master checkbox
+            const allCheckboxes = document.querySelectorAll('.item-checkbox');
+            const masterCheckbox = document.getElementById('checkAll');
+            
+            if (allCheckboxes.length > 0) {
+                if (checkedBoxes.length === allCheckboxes.length) {
+                    masterCheckbox.checked = true;
+                    masterCheckbox.indeterminate = false;
+                } else if (checkedBoxes.length > 0) {
+                    masterCheckbox.checked = false;
+                    masterCheckbox.indeterminate = true;
+                } else {
+                    masterCheckbox.checked = false;
+                    masterCheckbox.indeterminate = false;
+                }
+            }
+        }
+
+        // Tạo tài khoản cho một người
+        function createSingleLogin(code) {
+            const type = currentType === 'teacher' ? 'giáo viên' : 'sinh viên';
+            const passwordDesc = currentType === 'teacher' ? 'số điện thoại' : 'ngày sinh (DDMMYY)';
+            if (!confirm(`Tạo tài khoản SQL cho ${type} ${code} với password là ${passwordDesc}?`)) {
+                return;
+            }
+            
+            const endpoint = currentType === 'teacher' 
+                ? '/admin/giaovien/api/giaovien/tao-login'
+                : '/admin/sinhvien/api/sinhvien/tao-login';
+                
+            const bodyKey = currentType === 'teacher' ? 'magv' : 'masv';
+            
+            fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ [bodyKey]: code })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showLoginAlert('success', data.message);
+                    // Reload danh sách
+                    setTimeout(() => {
+                        loadDataChuaCoLogin();
+                    }, 1500);
+                } else {
+                    showLoginAlert('danger', 'Lỗi: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showLoginAlert('danger', 'Lỗi kết nối: ' + error.message);
+            });
+        }
+
+        // Tạo tài khoản hàng loạt
+        function createSelectedLogin() {
+            const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
+            const selectedCodes = Array.from(checkedBoxes).map(cb => cb.value);
+            
+            if (selectedCodes.length === 0) {
+                showLoginAlert('warning', 'Vui lòng chọn ít nhất một người');
+                return;
+            }
+            
+            const type = currentType === 'teacher' ? 'giáo viên' : 'sinh viên';
+            const passwordDesc = currentType === 'teacher' ? 'số điện thoại' : 'ngày sinh (DDMMYY)';
+            if (!confirm(`Tạo tài khoản SQL cho ${selectedCodes.length} ${type} với password là ${passwordDesc}?`)) {
+                return;
+            }
+            
+            // Disable button
+            const createBtn = document.getElementById('createSelectedLoginBtn');
+            const originalText = createBtn.innerHTML;
+            createBtn.disabled = true;
+            createBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tạo...';
+            
+            const endpoint = currentType === 'teacher' 
+                ? '/admin/giaovien/api/giaovien/tao-login-hang-loat'
+                : '/admin/sinhvien/api/sinhvien/tao-login-hang-loat';
+                
+            const bodyKey = currentType === 'teacher' ? 'danhSachMaGV' : 'danhSachMaSV';
+            
+            fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ [bodyKey]: selectedCodes })
+            })
+            .then(response => response.json())
+            .then(data => {
+                createBtn.disabled = false;
+                createBtn.innerHTML = originalText;
+                
+                if (data.success) {
+                    const message = `${data.message}\n\nChi tiết:\n${data.ketQuaChiTiet.join('\n')}`;
+                    showLoginAlert('success', message);
+                    
+                    // Reload danh sách và page để cập nhật account list
+                    setTimeout(() => {
+                        loadDataChuaCoLogin();
+                        // Reload page để cập nhật account table
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000);
+                    }, 2000);
+                } else {
+                    showLoginAlert('danger', 'Lỗi: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                createBtn.disabled = false;
+                createBtn.innerHTML = originalText;
+                showLoginAlert('danger', 'Lỗi kết nối: ' + error.message);
+            });
+        }
+
+        // Hiển thị alert trong modal
+        function showLoginAlert(type, message) {
+            const alertDiv = document.getElementById('loginCreateAlert');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'}"></i> ${message}`;
+            alertDiv.classList.remove('d-none');
+            
+            // Auto hide success alerts
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertDiv.classList.add('d-none');
+                }, 5000);
+            }
         }
 
         function resetPassword(username) {
@@ -409,42 +714,33 @@
         }
 
         // Filter functions
-        function filterTeacherAccounts() {
-            // Show teacher section, hide student section
+        function filterStudentAccounts() {
             const teacherSection = document.getElementById('teacher-accounts');
             const studentSection = document.getElementById('student-accounts');
-            
-            teacherSection.style.display = 'block';
-            studentSection.style.display = 'none';
 
-            // Scroll to teacher accounts section
-            teacherSection.scrollIntoView({ behavior: 'smooth' });
-            
-            // Update filter status
-            const teacherCount = document.querySelectorAll('#teacher-accounts tbody tr:not([style*="display: none"]) td:not([colspan])').length / 6;
-            updateFilterStatus(`Đang hiển thị ${teacherCount} tài khoản giáo viên`, 'primary');
-            
-            // Update button states
+            // Cập nhật class để hiển thị đúng tab
+            teacherSection.classList.remove('show', 'active');
+            studentSection.classList.add('show', 'active');
+
+            // Scroll + UI update
+            studentSection.scrollIntoView({ behavior: 'smooth' });
+            updateFilterStatus(`Đang hiển thị ${getAccountCount('student-accounts')} tài khoản sinh viên`, 'success');
+            updateButtonStates('filterStudentsBtn');
+        }
+
+        function filterTeacherAccounts() {
+            const teacherSection = document.getElementById('teacher-accounts');
+            const studentSection = document.getElementById('student-accounts');
+
+            studentSection.classList.remove('show', 'active');
+            teacherSection.classList.add('show', 'active');
+
+            updateFilterStatus(`Đang hiển thị ${getAccountCount('teacher-accounts')} tài khoản giáo viên`, 'primary');
             updateButtonStates('filterTeachersBtn');
         }
 
-        function filterStudentAccounts() {
-            // Show student section, hide teacher section
-            const teacherSection = document.getElementById('teacher-accounts');
-            const studentSection = document.getElementById('student-accounts');
-            
-            teacherSection.style.display = 'none';
-            studentSection.style.display = 'block';
-
-            // Scroll to student accounts section
-            studentSection.scrollIntoView({ behavior: 'smooth' });
-            
-            // Update filter status
-            const studentCount = document.querySelectorAll('#student-accounts tbody tr:not([style*="display: none"]) td:not([colspan])').length / 6;
-            updateFilterStatus(`Đang hiển thị ${studentCount} tài khoản sinh viên`, 'success');
-            
-            // Update button states
-            updateButtonStates('filterStudentsBtn');
+        function getAccountCount(containerId) {
+            return document.querySelectorAll(`#${containerId} tbody tr td:not([colspan])`).length / 6;
         }
 
         function updateFilterStatus(text, type) {
@@ -465,93 +761,27 @@
             document.getElementById(activeButtonId).classList.add('active');
         }
 
-        // Submit functions
-        function submitCreateTeacherAccount() {
-            const form = document.getElementById('createTeacherAccountForm');
-            const formData = new FormData(form);
-            const password = formData.get('password');
-            const confirmPassword = document.getElementById('teacherPasswordConfirm').value;
 
-            if (password !== confirmPassword) {
-                showAlert('danger', 'Mật khẩu xác nhận không khớp');
-                return;
-            }
 
-            if (password.length < 6) {
-                showAlert('danger', 'Mật khẩu phải có ít nhất 6 ký tự');
-                return;
-            }
-
-            const data = {
-                magv: formData.get('magv'),
-                password: password
-            };
-
-            fetch('/admin/taikhoan/api/create-teacher-account', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    bootstrap.Modal.getInstance(document.getElementById('createTeacherAccountModal')).hide();
-                    showAlert('success', data.message);
-                    location.reload();
-                } else {
-                    showAlert('danger', data.message);
+        // Function để hiển thị alert
+        function showAlert(type, message) {
+            const alertContainer = document.createElement('div');
+            alertContainer.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertContainer.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alertContainer.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(alertContainer);
+            
+            // Auto remove sau 5 giây
+            setTimeout(() => {
+                if (alertContainer.parentNode) {
+                    alertContainer.remove();
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('danger', 'Có lỗi xảy ra khi tạo tài khoản');
-            });
-        }
-
-        function submitCreateStudentAccount() {
-            const form = document.getElementById('createStudentAccountForm');
-            const formData = new FormData(form);
-            const password = formData.get('password');
-            const confirmPassword = document.getElementById('studentPasswordConfirm').value;
-
-            if (password !== confirmPassword) {
-                showAlert('danger', 'Mật khẩu xác nhận không khớp');
-                return;
-            }
-
-            if (password.length < 6) {
-                showAlert('danger', 'Mật khẩu phải có ít nhất 6 ký tự');
-                return;
-            }
-
-            const data = {
-                masv: formData.get('masv'),
-                password: password
-            };
-
-            fetch('/admin/taikhoan/api/create-student-account', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    bootstrap.Modal.getInstance(document.getElementById('createStudentAccountModal')).hide();
-                    showAlert('success', data.message);
-                    location.reload();
-                } else {
-                    showAlert('danger', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('danger', 'Có lỗi xảy ra khi tạo tài khoản');
-            });
+            }, 5000);
         }
 
         function submitResetPassword() {
@@ -565,8 +795,8 @@
                 return;
             }
 
-            if (newPassword.length < 6) {
-                showAlert('danger', 'Mật khẩu phải có ít nhất 6 ký tự');
+            if (newPassword.length < 4) {
+                showAlert('danger', 'Mật khẩu phải có ít nhất 4 ký tự');
                 return;
             }
 
@@ -574,6 +804,12 @@
                 userid: formData.get('userid'),
                 newpassword: newPassword
             };
+
+            // Disable button trong khi xử lý
+            const submitBtn = document.querySelector('#resetPasswordModal .btn-warning');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
 
             fetch('/admin/taikhoan/api/reset-password', {
                 method: 'POST',
@@ -584,15 +820,22 @@
             })
             .then(response => response.json())
             .then(data => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                
                 if (data.success) {
                     bootstrap.Modal.getInstance(document.getElementById('resetPasswordModal')).hide();
                     showAlert('success', data.message);
+                    // Reset form
+                    form.reset();
                 } else {
                     showAlert('danger', data.message);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
                 showAlert('danger', 'Có lỗi xảy ra khi reset mật khẩu');
             });
         }
@@ -686,5 +929,8 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
     </style>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html> 

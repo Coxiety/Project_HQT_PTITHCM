@@ -133,4 +133,102 @@ public class GiaoVienDangKyService {
             return false;
         }
     }
+
+    /**
+     * Lấy thông tin đăng ký thi theo ID composite
+     * ID format: "MAGV|MALOP|MAMH|LAN"
+     */
+    public GIAOVIEN_DANGKY getDangKyThiById(String id) {
+        try {
+            String[] parts = id.split("\\|");
+            if (parts.length != 4) {
+                throw new IllegalArgumentException("ID không hợp lệ");
+            }
+            
+            String magv = parts[0];
+            String malop = parts[1];
+            String mamh = parts[2];
+            Short lan = Short.parseShort(parts[3]);
+            
+            JdbcTemplate jdbcTemplate = sessionManager.getJdbcTemplate();
+            String sql = "SELECT MAGV, MALOP, MAMH, TRINHDO, NGAYTHI, LAN, SOCAUTHI, THOIGIAN " +
+                        "FROM GIAOVIEN_DANGKY WHERE MAGV = ? AND MALOP = ? AND MAMH = ? AND LAN = ?";
+            
+            List<GIAOVIEN_DANGKY> result = jdbcTemplate.query(sql, dangKyRowMapper, magv, malop, mamh, lan);
+            
+            if (result.isEmpty()) {
+                return null;
+            }
+            
+            System.out.println("✅ Lấy thông tin đăng ký thi thành công: " + id);
+            return result.get(0);
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi lấy thông tin đăng ký thi: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Cập nhật thông tin đăng ký thi
+     */
+    public boolean updateDangKyThi(GIAOVIEN_DANGKY dangKy) {
+        try {
+            JdbcTemplate jdbcTemplate = sessionManager.getJdbcTemplate();
+            
+            String sql = "UPDATE GIAOVIEN_DANGKY SET " +
+                        "TRINHDO = ?, NGAYTHI = ?, SOCAUTHI = ?, THOIGIAN = ? " +
+                        "WHERE MAGV = ? AND MALOP = ? AND MAMH = ? AND LAN = ?";
+            
+            int result = jdbcTemplate.update(sql,
+                dangKy.getTRINHDO(),
+                dangKy.getNGAYTHI(),
+                dangKy.getSOCAUTHI(),
+                dangKy.getTHOIGIAN(),
+                dangKy.getMAGV(),
+                dangKy.getMALOP(),
+                dangKy.getMAMH(),
+                dangKy.getLAN()
+            );
+            
+            if (result > 0) {
+                System.out.println("✅ Cập nhật đăng ký thi thành công: " + dangKy.getMAGV() + " - " + dangKy.getMAMH());
+                return true;
+            }
+            
+            return false;
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi cập nhật đăng ký thi: " + e.getMessage());
+            throw new RuntimeException(ErrorCode.GENERAL_ERROR_MSG + ": " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Xóa đăng ký thi theo ID composite
+     * ID format: "MAGV|MALOP|MAMH|LAN"
+     */
+    public boolean deleteDangKyThi(String id) {
+        try {
+            String[] parts = id.split("\\|");
+            if (parts.length != 4) {
+                throw new IllegalArgumentException("ID không hợp lệ");
+            }
+            
+            String magv = parts[0];
+            String malop = parts[1];
+            String mamh = parts[2];
+            Short lan = Short.parseShort(parts[3]);
+            
+            return deleteDangKyThi(magv, malop, mamh, lan);
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi xóa đăng ký thi theo ID: " + e.getMessage());
+            throw new RuntimeException(ErrorCode.GENERAL_ERROR_MSG + ": " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Tạo ID composite từ các thành phần
+     */
+    public static String createCompositeId(String magv, String malop, String mamh, Short lan) {
+        return magv + "|" + malop + "|" + mamh + "|" + lan;
+    }
 }
