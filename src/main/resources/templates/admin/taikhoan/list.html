@@ -563,9 +563,6 @@
         function createSingleLogin(code) {
             const type = currentType === 'teacher' ? 'giáo viên' : 'sinh viên';
             const passwordDesc = currentType === 'teacher' ? 'số điện thoại' : 'ngày sinh (DDMMYY)';
-            if (!confirm(`Tạo tài khoản SQL cho ${type} ${code} với password là ${passwordDesc}?`)) {
-                return;
-            }
             
             const endpoint = currentType === 'teacher' 
                 ? '/admin/giaovien/api/giaovien/tao-login'
@@ -610,9 +607,6 @@
             
             const type = currentType === 'teacher' ? 'giáo viên' : 'sinh viên';
             const passwordDesc = currentType === 'teacher' ? 'số điện thoại' : 'ngày sinh (DDMMYY)';
-            if (!confirm(`Tạo tài khoản SQL cho ${selectedCodes.length} ${type} với password là ${passwordDesc}?`)) {
-                return;
-            }
             
             // Disable button
             const createBtn = document.getElementById('createSelectedLoginBtn');
@@ -760,8 +754,6 @@
             // Set active button
             document.getElementById(activeButtonId).classList.add('active');
         }
-
-
 
         // Function để hiển thị alert
         function showAlert(type, message) {

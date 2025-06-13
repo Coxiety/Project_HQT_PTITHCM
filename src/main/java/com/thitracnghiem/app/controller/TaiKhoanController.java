@@ -98,10 +98,10 @@ public class TaiKhoanController {
             boolean success = taiKhoanService.createTeacherAccount(username.trim(), password.trim());
             if (success) {
                 response.put("success", true);
-                response.put("message", "Tạo tài khoản giáo viên thành công: " + username);
+                response.put("message", "Tạo tài khoản thành công cho giáo viên: " + username);
             } else {
                 response.put("success", false);
-                response.put("message", "Không thể tạo tài khoản giáo viên");
+                response.put("message", "Không thể tạo tài khoản");
             }
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -138,10 +138,10 @@ public class TaiKhoanController {
             boolean success = taiKhoanService.createStudentAccount(username.trim(), password.trim());
             if (success) {
                 response.put("success", true);
-                response.put("message", "Tạo tài khoản sinh viên thành công: " + username);
+                response.put("message", "Tạo tài khoản thành công cho sinh viên: " + username);
             } else {
                 response.put("success", false);
-                response.put("message", "Không thể tạo tài khoản sinh viên");
+                response.put("message", "Không thể tạo tài khoản");
             }
             return ResponseEntity.ok(response);
         } catch (Exception e) {

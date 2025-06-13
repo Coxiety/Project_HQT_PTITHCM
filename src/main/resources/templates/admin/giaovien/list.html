@@ -189,8 +189,24 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="add_magv" class="form-label">Mã Giáo viên <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="add_magv" name="magv" required>
-                                    <div class="form-text">Ví dụ: GV001, GV002...</div>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="add_magv" 
+                                           name="magv" 
+                                           required
+                                           minlength="8"
+                                           maxlength="8"
+                                           pattern="^[A-Z]{2}[0-9]{6}$"
+                                           title="Mã giáo viên phải có đủ 8 ký tự: 2 chữ cái + 6 chữ số (VD: GV000001)"
+                                           style="text-transform: uppercase;"
+                                           oninput="validateMAGV(this)">
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle text-info"></i>
+                                        Bắt buộc đủ 8 ký tự: 2 chữ cái + 6 chữ số (VD: GV000001). Không có khoảng trắng.
+                                    </div>
+                                    <div class="invalid-feedback" id="magv-error">
+                                        Mã giáo viên phải có đủ 8 ký tự
+                                    </div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="add_ho" class="form-label">Họ <span class="text-danger">*</span></label>
@@ -552,6 +568,18 @@
             });
         }, 5000);
 
+        // Add validation for MAGV
+        function validateMAGV(input) {
+            const magv = input.value.toUpperCase();
+            const pattern = /^[A-Z]{2}[0-9]{6}$/;
+            const isValid = pattern.test(magv);
+            const errorElement = document.getElementById('magv-error');
+            if (isValid) {
+                errorElement.textContent = '';
+            } else {
+                errorElement.textContent = 'Mã giáo viên phải có đủ 8 ký tự';
+            }
+        }
 
     </script>
 

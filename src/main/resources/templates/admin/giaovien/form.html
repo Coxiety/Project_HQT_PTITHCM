@@ -61,13 +61,20 @@
                                        id="MAGV" 
                                        th:field="*{MAGV}"
                                        th:readonly="${giaovien.MAGV != null}"
-                                       placeholder="Nhập mã giáo viên (VD: GV001)"
-                                       required>
+                                       placeholder="Nhập mã giáo viên (VD: GV000001)"
+                                       required
+                                       minlength="8"
+                                       maxlength="8"
+                                       pattern="^[A-Z]{2}[0-9]{6}$"
+                                       title="Mã giáo viên phải có đủ 8 ký tự: 2 chữ cái + 6 chữ số (VD: GV000001)"
+                                       style="text-transform: uppercase;">
                                 <div class="invalid-feedback">
-                                    Vui lòng nhập mã giáo viên.
+                                    Mã giáo viên phải có đủ 8 ký tự: 2 chữ cái + 6 chữ số (VD: GV000001)
                                 </div>
                                 <div class="form-text">
-                                    <small><i class="fas fa-info-circle"></i> Mã giáo viên sẽ được dùng làm tài khoản đăng nhập</small>
+                                    <small><i class="fas fa-info-circle"></i> 
+                                    Bắt buộc đủ 8 ký tự: 2 chữ cái + 6 chữ số. Không có khoảng trắng. 
+                                    Mã này sẽ được dùng làm tài khoản đăng nhập.</small>
                                 </div>
                             </div>
 

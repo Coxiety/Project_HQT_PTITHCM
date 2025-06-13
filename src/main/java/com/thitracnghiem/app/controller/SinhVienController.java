@@ -444,10 +444,10 @@ public class SinhVienController {
             
             if (success) {
                 response.put("success", true);
-                response.put("message", "Tạo tài khoản SQL thành công cho sinh viên: " + masv);
+                response.put("message", "Tạo tài khoản thành công cho sinh viên: " + masv);
             } else {
                 response.put("success", false);
-                response.put("message", "Tạo tài khoản SQL thất bại cho sinh viên: " + masv);
+                response.put("message", "Tạo tài khoản thất bại cho sinh viên: " + masv);
             }
             return ResponseEntity.ok(response);
         } catch (Exception e) {

@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head th:replace="~{universal/head :: head('Bảng điểm')}"></head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav th:replace="~{universal/teacher/sidebar :: sidebar('bangdiem', ${user})}"></nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- Page Header -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="fas fa-chart-line text-orange"></i>
+                        <span>Bảng điểm</span>
+                    </h1>
+                </div>
+
+                <!-- Alert Messages -->
+                <div th:replace="~{universal/alerts :: alerts}"></div>
+                <div id="alertContainer"></div>
+
+                <!-- Statistics Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card text-white bg-orange statistics-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">
+                                            <span th:text="${user?.userId}">GV001</span>
+                                        </h4>
+                                        <p class="card-text">Mã giáo viên</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-id-card fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card text-white bg-warning statistics-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4 class="card-title">
+                                            <span id="gradeCount">0</span>
+                                        </h4>
+                                        <p class="card-text">Lớp có bài thi</p>
+                                    </div>
+                                    <div class="align-self-center">
+                                        <i class="fas fa-clipboard-check fa-2x"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Area -->
+                <div class="card shadow-hover">
+                    <div class="card-header gradient-orange text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-chart-line"></i> Danh sách lớp học</h5>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="emptyState" class="text-center py-5" style="display: none;">
+                            <i class="fas fa-school text-muted fa-3x mb-3"></i>
+                            <h5 class="text-muted">Chưa có lớp học nào</h5>
+                            <p class="text-muted">Hiện tại chưa có lớp học nào trong hệ thống</p>
+                        </div>
+
+                        <div id="lopTable">
+                            <!-- Table Header -->
+                            <div class="table-header mb-3">
+                                <div class="row align-items-center bg-light p-3 rounded border">
+                                    <div class="col-md-1">
+                                        <strong class="text-muted">STT</strong>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <strong class="text-muted">Mã Lớp</strong>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong class="text-muted">Tên Lớp</strong>
+                                    </div>
+                                    <div class="col-md-2 text-end">
+                                        <strong class="text-muted">Chi tiết</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="lopContainer">
+                                <!-- Dữ liệu sẽ được load bằng JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal: Bảng điểm chi tiết -->
+    <div class="modal fade" id="bangDiemModal" tabindex="-1" aria-labelledby="bangDiemModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bangDiemModalLabel">
+                        <i class="fas fa-table text-orange"></i> Bảng điểm chi tiết
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="bangDiemLoading" class="text-center py-3">
+                        <i class="fas fa-spinner fa-spin"></i> Đang tải bảng điểm...
+                    </div>
+                    <div id="bangDiemContent" style="display: none;">
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <strong>Lớp: </strong><span id="bangDiemLop"></span>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Môn học: </strong><span id="bangDiemMon"></span>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Lần thi: </strong><span id="bangDiemLan"></span>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Điểm TB: </strong><span id="bangDiemTB" class="badge bg-info">-</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Thống kê -->
+                        <div id="bangDiemStats" class="row mb-3" style="display: none;">
+                            <div class="col-md-3">
+                                <div class="card text-center bg-light">
+                                    <div class="card-body py-2">
+                                        <h6 class="card-title text-success mb-1">Đạt</h6>
+                                        <span id="soDat" class="badge bg-success">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center bg-light">
+                                    <div class="card-body py-2">
+                                        <h6 class="card-title text-danger mb-1">Không đạt</h6>
+                                        <span id="soKhongDat" class="badge bg-danger">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center bg-light">
+                                    <div class="card-body py-2">
+                                        <h6 class="card-title text-primary mb-1">Tỉ lệ đạt</h6>
+                                        <span id="tiLeDat" class="badge bg-primary">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center bg-light">
+                                    <div class="card-body py-2">
+                                        <h6 class="card-title text-secondary mb-1">Tổng SV</h6>
+                                        <span id="tongSV" class="badge bg-secondary">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Mã sinh viên</th>
+                                        <th>Tên sinh viên</th>
+                                        <th class="text-center">Điểm</th>
+                                        <th class="text-center">Kết quả</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bangDiemTableBody">
+                                    <!-- Dữ liệu sẽ được load bằng JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CSS Styles -->
+    <style>
+        .statistics-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .statistics-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .bg-orange {
+            background: linear-gradient(135deg, #ff5722, #ff7043) !important;
+        }
+
+        .gradient-orange {
+            background: linear-gradient(135deg, #ff5722, #ff7043) !important;
+        }
+
+        .text-orange {
+            color: #ff5722 !important;
+        }
+
+        .btn-orange {
+            background-color: #ff5722;
+            border-color: #ff5722;
+            color: white;
+        }
+
+        .btn-orange:hover {
+            background-color: #e64a19;
+            border-color: #e64a19;
+            color: white;
+        }
+
+        .shadow-hover {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .shadow-hover:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+            transform: translateY(-2px);
+        }
+
+        /* Expandable rows styles */
+        .lop-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .lop-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Lớp chưa có bài thi */
+        .lop-card-no-exam {
+            border-color: #ffc107;
+            background-color: #fffbf0;
+        }
+        
+        .lop-card-no-exam .lop-header {
+            background: #fff3cd;
+        }
+
+        .lop-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #dee2e6;
+            transition: background-color 0.2s;
+        }
+        
+        /* Table header styles */
+        .table-header {
+            font-size: 0.9rem;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+            border: 1px solid #dee2e6 !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .table-header strong {
+            color: #495057 !important;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .lop-header:hover {
+            background: #e9ecef;
+        }
+
+        .lop-header.expanded {
+            background: #fff3cd;
+            border-bottom-color: #ffeaa7;
+        }
+
+        .lop-content {
+            padding: 0;
+            display: none;
+            background: #fff;
+        }
+
+        .lop-content.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 500px;
+            }
+        }
+
+        .mon-thi-table {
+            margin: 0;
+        }
+
+        .mon-thi-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+    </style>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript -->
+    <script>
+        // Global variables
+        let allLopData = [];
+        let expandedLops = new Set();
+        let monHocMap = {}; // Cache tên môn học
+
+        // DOM Ready
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDanhSachLop();
+            loadMonHocMapping(); // Load tên môn học
+        });
+
+        // Load mapping tên môn học
+        function loadMonHocMapping() {
+            fetch('/teacher/api/monhoc')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Tạo mapping từ MAMH -> TENMH
+                        data.monhocs.forEach(monhoc => {
+                            monHocMap[monhoc.MAMH || monhoc.mamh] = monhoc.TENMH || monhoc.tenmh;
+                        });
+                        console.log('MonHoc mapping loaded:', monHocMap);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading MonHoc mapping:', error);
+                });
+        }
+
+        // Load danh sách lớp học
+        function loadDanhSachLop() {
+            fetch('/teacher/api/bangdiem/lop')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('API response:', data); // Debug line
+                    if (data.success) {
+                        allLopData = data.lops;
+                        console.log('Lops data:', data.lops); // Debug line
+                        renderLopCards(data.lops);
+                        
+                        // Cập nhật thống kê
+                        updateLopCount(data.lopCoBaiThi || data.lops.length);
+                        
+                        // Log thống kê
+                        if (data.totalLops !== undefined) {
+                            console.log(`📊 Thống kê: ${data.totalLops} lớp tổng, ${data.lopCoBaiThi} có bài thi, ${data.lopChuaCoBaiThi} chưa có bài thi`);
+                        }
+                    } else {
+                        showAlert('danger', 'Lỗi: ' + data.message);
+                        showEmptyState();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('danger', 'Có lỗi xảy ra khi tải dữ liệu');
+                    showEmptyState();
+                });
+        }
+
+        // Render lớp học cards với expandable content
+        function renderLopCards(lops) {
+            const container = document.getElementById('lopContainer');
+            
+            if (lops.length === 0) {
+                showEmptyState();
+                return;
+            }
+
+            let html = '';
+            lops.forEach((lop, index) => {
+                console.log('Rendering lop:', lop); // Debug line
+                
+                // Xử lý cấu trúc dữ liệu mới
+                const maLop = lop.MALOP || lop.malop;
+                const tenLop = lop.TENLOP || lop.tenlop;
+                const coBaiThi = lop.coBaiThi || false;
+                const soMonThi = lop.soMonThi || 0;
+                
+                // Tạo badge cho trạng thái
+                const statusBadge = coBaiThi 
+                    ? `<span class="badge bg-success ms-2"><i class="fas fa-check"></i> ${soMonThi} môn thi</span>`
+                    : `<span class="badge bg-warning ms-2"><i class="fas fa-exclamation-triangle"></i> Chưa có bài thi</span>`;
+                
+                // Thêm class cho lớp chưa có bài thi
+                const cardClass = coBaiThi ? 'lop-card' : 'lop-card lop-card-no-exam';
+                
+                html += `
+                    <div class="${cardClass}" id="lop-${maLop}">
+                        <div class="lop-header" onclick="toggleLopContent('${maLop}', '${tenLop}', ${coBaiThi})">
+                            <div class="row align-items-center">
+                                <div class="col-md-1">
+                                    <span class="badge bg-secondary">${index + 1}</span>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="badge bg-primary">${maLop}</span>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>${tenLop}</strong>
+                                    ${statusBadge}
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    ${coBaiThi 
+                                        ? `<i class="fas fa-chevron-down expand-icon" id="icon-${maLop}"></i>`
+                                        : `<i class="fas fa-ban text-muted" title="Không có dữ liệu"></i>`
+                                    }
+                                </div>
+                            </div>
+                        </div>`;
+                
+                if (coBaiThi) {
+                    html += `
+                        <div class="lop-content" id="content-${maLop}">
+                            <div class="loading-spinner" id="loading-${maLop}">
+                                <i class="fas fa-spinner fa-spin"></i> Đang tải danh sách môn thi...
+                            </div>
+                            <div class="table-responsive" id="table-${maLop}" style="display: none;">
+                                <table class="table mon-thi-table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Mã môn</th>
+                                            <th>Tên môn học</th>
+                                            <th>Trình độ</th>
+                                            <th>Ngày thi</th>
+                                            <th>Lần</th>
+                                            <th class="text-center">Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="monthi-${maLop}">
+                                        <!-- Sẽ được load động -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>`;
+                } else {
+                    html += `
+                        <div class="lop-content-empty" id="content-${maLop}" style="display: none;">
+                            <div class="alert alert-info m-3">
+                                <i class="fas fa-info-circle"></i>
+                                Lớp này chưa có bài thi nào. Vui lòng kiểm tra lại hoặc liên hệ quản trị viên.
+                            </div>
+                        </div>`;
+                }
+                
+                html += `</div>`;
+            });
+            
+            container.innerHTML = html;
+            showLopTable();
+        }
+
+        // Toggle lớp content (expand/collapse)
+        function toggleLopContent(maLop, tenLop, coBaiThi) {
+            // Nếu lớp không có bài thi, chỉ hiển thị thông báo
+            if (!coBaiThi) {
+                const content = document.getElementById(`content-${maLop}`);
+                if (content.style.display === 'none' || content.style.display === '') {
+                    content.style.display = 'block';
+                } else {
+                    content.style.display = 'none';
+                }
+                return;
+            }
+            
+            const content = document.getElementById(`content-${maLop}`);
+            const icon = document.getElementById(`icon-${maLop}`);
+            const header = content.previousElementSibling;
+            
+            if (expandedLops.has(maLop)) {
+                // Collapse
+                content.classList.remove('show');
+                setTimeout(() => {
+                    content.style.display = 'none';
+                }, 300);
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+                header.classList.remove('expanded');
+                expandedLops.delete(maLop);
+            } else {
+                // Expand
+                content.style.display = 'block';
+                setTimeout(() => {
+                    content.classList.add('show');
+                }, 10);
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+                header.classList.add('expanded');
+                expandedLops.add(maLop);
+                
+                // Load môn thi nếu chưa load
+                if (!document.getElementById(`table-${maLop}`).hasAttribute('data-loaded')) {
+                    loadMonThiCuaLop(maLop);
+                }
+            }
+        }
+
+        // Load danh sách môn thi của lớp
+        function loadMonThiCuaLop(maLop) {
+            fetch(`/teacher/api/bangdiem/lop/${maLop}/monthi`)
+                .then(response => response.json())
+                .then(data => {
+                    const loading = document.getElementById(`loading-${maLop}`);
+                    const table = document.getElementById(`table-${maLop}`);
+                    
+                    loading.style.display = 'none';
+                    
+                    if (data.success) {
+                        renderMonThiTable(maLop, data.monthi);
+                        table.style.display = 'block';
+                        table.setAttribute('data-loaded', 'true');
+                    } else {
+                        table.innerHTML = `<div class="alert alert-warning m-3">Lỗi: ${data.message}</div>`;
+                        table.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const loading = document.getElementById(`loading-${maLop}`);
+                    const table = document.getElementById(`table-${maLop}`);
+                    
+                    loading.style.display = 'none';
+                    table.innerHTML = `<div class="alert alert-danger m-3">Có lỗi xảy ra khi tải dữ liệu môn thi</div>`;
+                    table.style.display = 'block';
+                });
+        }
+
+        // Render bảng môn thi
+        function renderMonThiTable(maLop, monThiList) {
+            const tbody = document.getElementById(`monthi-${maLop}`);
+            
+            if (monThiList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                            Lớp này chưa có môn thi nào
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            monThiList.forEach((monThi, index) => {
+                const ngayThi = new Date(monThi.NGAYTHI).toLocaleDateString('vi-VN');
+                const gioThi = new Date(monThi.NGAYTHI).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'});
+                
+                html += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><span class="badge bg-info">${monThi.MAMH}</span></td>
+                        <td>${getMonHocName(monThi.MAMH)}</td>
+                        <td><span class="badge bg-secondary">${monThi.TRINHDO}</span></td>
+                        <td>${ngayThi} ${gioThi}</td>
+                        <td><span class="badge bg-warning">Lần ${monThi.LAN}</span></td>
+                        <td class="text-center">
+                            <button class="btn btn-success btn-sm" 
+                                    onclick="xemBangDiem('${maLop}', '${monThi.MAMH}', '${monThi.LAN}')" 
+                                    title="Xem bảng điểm">
+                                <i class="fas fa-table"></i> Xem
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // Xem bảng điểm chi tiết
+        function xemBangDiem(maLop, maMH, lan) {
+            // Reset modal
+            document.getElementById('bangDiemLoading').style.display = 'block';
+            document.getElementById('bangDiemContent').style.display = 'none';
+            document.getElementById('bangDiemStats').style.display = 'none';
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('bangDiemModal'));
+            modal.show();
+            
+            // Set thông tin
+            document.getElementById('bangDiemLop').textContent = maLop;
+            document.getElementById('bangDiemMon').textContent = `${maMH} - ${getMonHocName(maMH)}`;
+            document.getElementById('bangDiemLan').textContent = `Lần ${lan}`;
+            
+            // Load data
+            fetch(`/teacher/api/bangdiem/chitiet?malop=${maLop}&mamh=${maMH}&lan=${lan}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('bangDiemLoading').style.display = 'none';
+                    
+                    if (data.success) {
+                        renderBangDiemTable(data.bangdiem);
+                        
+                        // Hiển thị thông tin thống kê nếu có
+                        if (data.diemTrungBinh !== undefined) {
+                            document.getElementById('bangDiemTB').textContent = data.diemTrungBinh;
+                            document.getElementById('soDat').textContent = data.soDat;
+                            document.getElementById('soKhongDat').textContent = data.soKhongDat;
+                            document.getElementById('tiLeDat').textContent = data.tiLeDat + '%';
+                            document.getElementById('tongSV').textContent = data.bangdiem.length;
+                            document.getElementById('bangDiemStats').style.display = 'block';
+                        }
+                        
+                        document.getElementById('bangDiemContent').style.display = 'block';
+                    } else {
+                        showAlert('danger', 'Lỗi: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('bangDiemLoading').style.display = 'none';
+                    showAlert('danger', 'Có lỗi xảy ra khi tải bảng điểm');
+                });
+        }
+
+        // Render bảng điểm
+        function renderBangDiemTable(bangDiemList) {
+            const tbody = document.getElementById('bangDiemTableBody');
+            
+            if (bangDiemList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                            Chưa có sinh viên nào thi môn này
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            bangDiemList.forEach((sv, index) => {
+                const ketQuaClass = sv.diem >= 5.0 ? 'text-success' : 'text-danger';
+                const ketQuaBadge = sv.diem >= 5.0 ? 'bg-success' : 'bg-danger';
+                
+                html += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><span class="badge bg-primary">${sv.masv}</span></td>
+                        <td>${sv.tensv}</td>
+                        <td class="text-center">
+                            <span class="badge ${ketQuaBadge}">${sv.diem}</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="${ketQuaClass}">
+                                <i class="fas ${sv.diem >= 5.0 ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                                ${sv.ketqua}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // Helper functions
+        function showEmptyState() {
+            document.getElementById('lopTable').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+        }
+        
+        function showLopTable() {
+            document.getElementById('lopTable').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+        }
+
+        function updateLopCount(count) {
+            document.getElementById('gradeCount').textContent = count;
+        }
+
+        function getMonHocName(maMH) {
+            return monHocMap[maMH] || maMH;
+        }
+
+        function showAlert(type, message) {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            document.getElementById('alertContainer').innerHTML = alertHtml;
+            
+            // Auto dismiss after 5 seconds
+            setTimeout(() => {
+                const alert = document.querySelector('#alertContainer .alert');
+                if (alert) {
+                    bootstrap.Alert.getOrCreateInstance(alert).close();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html> 

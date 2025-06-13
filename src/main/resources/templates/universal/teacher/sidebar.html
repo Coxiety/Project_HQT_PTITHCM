@@ -27,8 +27,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:classappend="${activeMenu == 'bangdiem'} ? 'active' : ''" href="#">
-                        <i class="fas fa-chart-bar"></i> Bảng điểm
+                    <a class="nav-link" th:classappend="${activeMenu == 'bangdiem'} ? 'active' : ''" th:href="@{/teacher/bangdiem}">
+                        <i class="fas fa-chart-line"></i> Bảng điểm
                     </a>
                 </li>
                 <li class="nav-item">

@@ -22,10 +22,10 @@ public class GiaoVienDangKyService {
         @Override
         public GIAOVIEN_DANGKY mapRow(ResultSet rs, int rowNum) throws SQLException {
             GIAOVIEN_DANGKY dk = new GIAOVIEN_DANGKY();
-            dk.setMAGV(rs.getString("MAGV"));
-            dk.setMALOP(rs.getString("MALOP"));
-            dk.setMAMH(rs.getString("MAMH"));
-            dk.setTRINHDO(rs.getString("TRINHDO"));
+            dk.setMAGV(rs.getString("MAGV") != null ? rs.getString("MAGV").trim() : null);
+            dk.setMALOP(rs.getString("MALOP") != null ? rs.getString("MALOP").trim() : null);
+            dk.setMAMH(rs.getString("MAMH") != null ? rs.getString("MAMH").trim() : null);
+            dk.setTRINHDO(rs.getString("TRINHDO") != null ? rs.getString("TRINHDO").trim() : null);
             dk.setNGAYTHI(rs.getTimestamp("NGAYTHI"));
             dk.setLAN(rs.getShort("LAN"));
             dk.setSOCAUTHI(rs.getShort("SOCAUTHI"));

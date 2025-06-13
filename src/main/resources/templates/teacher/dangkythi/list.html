@@ -317,31 +317,37 @@
     <script>
         let classList = [];
         let subjectList = [];
+        let currentUserId = null; // Sẽ được load từ API
 
         // Load data khi trang được tải
         document.addEventListener('DOMContentLoaded', function() {
-            loadLop();
-            loadMonHoc();
-            loadAllRegistrations();
-            initializeDatePicker();
-            
-            // Test function to check if notices are visible
-            console.log('Testing notice visibility...');
-            setTimeout(() => {
-                const infoNotice = document.getElementById('registerInfoNotice');
-                const warningNotice = document.getElementById('registerWarningNotice');
-                console.log('Info notice exists:', !!infoNotice);
-                console.log('Warning notice exists:', !!warningNotice);
-                if (infoNotice) {
-                    console.log('Info notice display:', getComputedStyle(infoNotice).display);
-                    console.log('Info notice visibility:', getComputedStyle(infoNotice).visibility);
-                }
-                if (warningNotice) {
-                    console.log('Warning notice display:', getComputedStyle(warningNotice).display);
-                    console.log('Warning notice visibility:', getComputedStyle(warningNotice).visibility);
-                }
-            }, 1000);
+            loadCurrentUser(); // Load user info trước
         });
+        
+        // Load thông tin user hiện tại
+        function loadCurrentUser() {
+            fetch('/teacher/api/currentuser')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        currentUserId = data.userId;
+                        console.log('Current User ID loaded:', currentUserId);
+                        
+                        // Sau khi có user ID, load các data khác
+                        loadLop();
+                        loadMonHoc();
+                        loadAllRegistrations();
+                        initializeDatePicker();
+                    } else {
+                        console.error('Không thể lấy thông tin user:', data.message);
+                        showAlert('danger', 'Lỗi: Không thể lấy thông tin user');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading current user:', error);
+                    showAlert('danger', 'Có lỗi xảy ra khi tải thông tin user');
+                });
+        }
 
         // Khởi tạo flatpickr
         function initializeDatePicker() {
@@ -460,6 +466,13 @@
 
         // Hiển thị danh sách đăng ký thi trong bảng
         function displayRegistrations(registrations) {
+            // Kiểm tra currentUserId đã được load chưa
+            if (!currentUserId) {
+                console.warn('CurrentUserId chưa được load, đang retry...');
+                setTimeout(() => displayRegistrations(registrations), 100);
+                return;
+            }
+            
             const tbody = document.getElementById('registrationTableBody');
             tbody.innerHTML = '';
             
@@ -486,27 +499,45 @@
                 const status = getExamStatus(new Date(reg.ngaythi), reg.thoigian);
                 const statusBadge = getStatusBadge(status);
                 
-                // Kiểm tra xem có phải của giáo viên hiện tại không
-                const currentUserId = '[[${user?.userId}]]';
-                const isMyRegistration = reg.magv === currentUserId;
+                // Sử dụng thông tin từ backend
+                const isMyRegistration = reg.isMyRegistration;
+                const canEditDelete = reg.canEditDelete;
+                const editDeleteReason = reg.editDeleteReason;
                 
-                // Tạo nút thao tác (chỉ hiển thị cho đăng ký của mình và trạng thái "Chưa bắt đầu")
+                // Debug logging
+                console.log(`Registration ${regId}: isMyRegistration=${isMyRegistration}, canEditDelete=${canEditDelete}, reason='${editDeleteReason}'`);
+                
+                // Tạo nút thao tác dựa trên thông tin từ backend
                 let actionButtons = '';
-                if (isMyRegistration && status === 'Chưa bắt đầu') {
-                    actionButtons = `
-                        <button class="btn btn-sm btn-orange me-1" onclick="showEditModal('${regId}')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteRegistration('${regId}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    `;
-                } else if (isMyRegistration) {
-                    actionButtons = `
-                        <small class="text-muted">Không thể sửa/xóa<br>${status}</small>
-                    `;
+                if (isMyRegistration) {
+                    if (canEditDelete) {
+                        // Có thể edit/delete
+                        actionButtons = `
+                            <button class="btn btn-sm btn-orange me-1" onclick="showEditModal('${regId}')" 
+                                    title="Sửa đăng ký thi">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteRegistration('${regId}')"
+                                    title="Hủy đăng ký thi">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        `;
+                    } else {
+                        // Không thể edit/delete, hiển thị lý do
+                        actionButtons = `
+                            <button class="btn btn-sm btn-secondary me-1" disabled 
+                                    title="${editDeleteReason}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-secondary" disabled
+                                    title="${editDeleteReason}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <br><small class="text-muted">${editDeleteReason}</small>
+                        `;
+                    }
                 } else {
-                    actionButtons = `<small class="text-muted">Không có quyền</small>`;
+                    actionButtons = `<small class="text-muted">${editDeleteReason || 'Không có quyền'}</small>`;
                 }
                 
                 const row = document.createElement('tr');

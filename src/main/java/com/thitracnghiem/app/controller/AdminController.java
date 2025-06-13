@@ -391,10 +391,10 @@ public class AdminController {
             
             if (success) {
                 response.put("success", true);
-                response.put("message", "Tạo tài khoản SQL thành công cho giáo viên: " + magv);
+                response.put("message", "Tạo tài khoản thành công cho giáo viên: " + magv);
             } else {
                 response.put("success", false);
-                response.put("message", "Tạo tài khoản SQL thất bại cho giáo viên: " + magv);
+                response.put("message", "Tạo tài khoản thất bại cho giáo viên: " + magv);
             }
             return ResponseEntity.ok(response);
         } catch (Exception e) {

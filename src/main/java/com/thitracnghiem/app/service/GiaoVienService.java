@@ -24,11 +24,11 @@ public class GiaoVienService {
         @Override
         public GIAOVIEN mapRow(ResultSet rs, int rowNum) throws SQLException {
             GIAOVIEN gv = new GIAOVIEN();
-            gv.setMAGV(rs.getString("MAGV"));
-            gv.setHO(rs.getString("HO"));
-            gv.setTEN(rs.getString("TEN"));
-            gv.setSODTLL(rs.getString("SODTLL"));
-            gv.setDIACHI(rs.getString("DIACHI"));
+            gv.setMAGV(rs.getString("MAGV") != null ? rs.getString("MAGV").trim() : null);
+            gv.setHO(rs.getString("HO") != null ? rs.getString("HO").trim() : null);
+            gv.setTEN(rs.getString("TEN") != null ? rs.getString("TEN").trim() : null);
+            gv.setSODTLL(rs.getString("SODTLL") != null ? rs.getString("SODTLL").trim() : null);
+            gv.setDIACHI(rs.getString("DIACHI") != null ? rs.getString("DIACHI").trim() : null);
             return gv;
         }
     };
@@ -61,6 +61,31 @@ public class GiaoVienService {
      */
     public boolean addGiaoVien(GIAOVIEN giaoVien) {
         try {
+            // Validation: Kiểm tra MAGV format và độ dài
+            String magv = giaoVien.getMAGV();
+            if (magv == null || magv.trim().isEmpty()) {
+                throw new RuntimeException("Mã giáo viên không được để trống");
+            }
+            
+            // Trim và uppercase MAGV
+            magv = magv.trim().toUpperCase();
+            giaoVien.setMAGV(magv);
+            
+            // Kiểm tra độ dài (phải đúng 8 ký tự cho NCHAR(8))
+            if (magv.length() != 8) {
+                throw new RuntimeException("Mã giáo viên phải có đúng 8 ký tự");
+            }
+            
+            // Kiểm tra format: 2 chữ cái + 6 chữ số (đúng 8 ký tự)
+            if (!magv.matches("^[A-Z]{2}[0-9]{6}$")) {
+                throw new RuntimeException("Mã giáo viên phải có format: 2 chữ cái + 6 chữ số (VD: GV000001)");
+            }
+            
+            // Kiểm tra không có khoảng trắng
+            if (magv.contains(" ")) {
+                throw new RuntimeException("Mã giáo viên không được chứa khoảng trắng");
+            }
+            
             JdbcTemplate jdbcTemplate = sessionManager.getJdbcTemplate();
             
             // Backup trước khi thay đổi
@@ -87,7 +112,7 @@ public class GiaoVienService {
             return false;
         } catch (Exception e) {
             System.err.println("❌ Lỗi thêm giáo viên: " + e.getMessage());
-            return false;
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -502,14 +527,14 @@ public class GiaoVienService {
                 boolean roleAssigned = assignTeacherRole(magv);
                 
                 if (roleAssigned) {
-                    System.out.println("✅ Tạo tài khoản SQL thành công cho giáo viên: " + magv + " với password: " + password);
+                    System.out.println("✅ Tạo tài khoản thành công cho giáo viên: " + magv + " với password: " + password);
                     return true;
                 } else {
                     System.err.println("⚠️ Gán role thất bại cho giáo viên: " + magv);
                     return true; // Vẫn coi như thành công vì đã tạo login
                 }
             } else {
-                System.err.println("❌ Tạo SQL login thất bại cho: " + magv);
+                System.err.println("❌ Tạo tài khoản thất bại cho: " + magv);
                 return false;
             }
         } catch (Exception e) {

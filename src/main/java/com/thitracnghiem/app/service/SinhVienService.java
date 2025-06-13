@@ -308,7 +308,7 @@ public class SinhVienService {
             String createUserSql = "CREATE USER [" + username + "] FOR LOGIN [" + username + "]";
             jdbcTemplate.execute(createUserSql);
             
-            System.out.println("✅ Tạo SQL login thành công cho sinh viên: " + username);
+            System.out.println("✅ Tạo tài khoản thành công cho sinh viên: " + username);
             return true;
         } catch (Exception e) {
             System.err.println("❌ Lỗi tạo SQL login cho sinh viên " + username + ": " + e.getMessage());
@@ -441,14 +441,14 @@ public class SinhVienService {
                 boolean roleAssigned = assignStudentRole(masv);
                 
                 if (roleAssigned) {
-                    System.out.println("✅ Tạo tài khoản SQL thành công cho sinh viên: " + masv + " với password: " + password);
+                    System.out.println("✅ Tạo tài khoản thành công cho sinh viên: " + masv + " với password: " + password);
                     return true;
                 } else {
                     System.err.println("⚠️ Gán role thất bại cho sinh viên: " + masv);
                     return true; // Vẫn coi như thành công vì đã tạo login
                 }
             } else {
-                System.err.println("❌ Tạo SQL login thất bại cho: " + masv);
+                System.err.println("❌ Tạo tài khoản thất bại cho: " + masv);
                 return false;
             }
         } catch (Exception e) {
